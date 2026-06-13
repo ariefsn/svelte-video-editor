@@ -1,0 +1,28 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="svelte-timeline-studio logo">
+  <!-- rounded app tile (neutral zinc) -->
+  <rect width="512" height="512" rx="112" fill="#18181b"/>
+
+  <!-- ruler ticks -->
+  <g fill="#52525b">
+    <rect x="96"  y="120" width="6" height="26" rx="3"/>
+    <rect x="160" y="128" width="5" height="18" rx="2.5"/>
+    <rect x="224" y="120" width="6" height="26" rx="3"/>
+    <rect x="288" y="128" width="5" height="18" rx="2.5"/>
+    <rect x="352" y="120" width="6" height="26" rx="3"/>
+    <rect x="410" y="128" width="5" height="18" rx="2.5"/>
+  </g>
+
+  <!-- track 1: highlighted clip (light = primary) -->
+  <rect x="96"  y="178" width="232" height="58" rx="16" fill="#fafafa"/>
+  <!-- track 2 -->
+  <rect x="160" y="258" width="256" height="58" rx="16" fill="#52525b"/>
+  <!-- track 3 -->
+  <rect x="96"  y="338" width="180" height="58" rx="16" fill="#3f3f46"/>
+
+  <!-- playhead (the one universal accent) -->
+  <rect x="206" y="104" width="6" height="304" rx="3" fill="#ef4444"/>
+  <path d="M209 104 l-14 -22 h28 z" fill="#ef4444"/>
+
+  <!-- play glyph cut into the highlighted clip -->
+  <path d="M150 196 v22 l20 -11 z" fill="#18181b"/>
+</svg>

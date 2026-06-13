@@ -1,0 +1,21 @@
+<svg width="560" height="128" viewBox="0 0 560 128" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="svelte-timeline-studio">
+  <!-- mark -->
+  <rect x="8" y="8" width="112" height="112" rx="26" fill="#18181b"/>
+  <g fill="#52525b">
+    <rect x="29" y="30" width="4" height="9" rx="2"/>
+    <rect x="45" y="32" width="3" height="6" rx="1.5"/>
+    <rect x="61" y="30" width="4" height="9" rx="2"/>
+    <rect x="77" y="32" width="3" height="6" rx="1.5"/>
+    <rect x="93" y="30" width="4" height="9" rx="2"/>
+  </g>
+  <rect x="29" y="48" width="58" height="15" rx="5" fill="#fafafa"/>
+  <rect x="45" y="68" width="62" height="15" rx="5" fill="#52525b"/>
+  <rect x="29" y="88" width="44" height="15" rx="5" fill="#3f3f46"/>
+  <rect x="56" y="26" width="3" height="80" rx="1.5" fill="#ef4444"/>
+  <path d="M57.5 26 l-5 -8 h10 z" fill="#ef4444"/>
+  <path d="M43 51 v9 l8 -4.5 z" fill="#18181b"/>
+
+  <!-- wordmark -->
+  <text x="146" y="56" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif" font-size="34" font-weight="700" fill="#18181b">svelte-timeline</text>
+  <text x="146" y="96" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif" font-size="34" font-weight="700" fill="#71717a">studio</text>
+</svg>

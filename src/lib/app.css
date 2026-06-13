@@ -1,0 +1,95 @@
+@import 'tailwindcss';
+
+/*
+ * svelte-timeline-studio theme — a SIMPLE, neutral palette with light + dark
+ * support. No brand color (host can override any --ts-* variable to theme it).
+ *
+ * The editor's utility classes (bg-background, text-muted-foreground, border,
+ * bg-primary, ...) resolve to Tailwind color utilities bound, via @theme below,
+ * to self-owned CSS variables (--ts-*). Add the `dark` class on an ancestor
+ * (e.g. <html class="dark">) to switch to the dark palette.
+ *
+ * Pure Tailwind v4 — no shadcn registry, no bits-ui.
+ */
+
+@custom-variant dark (&:is(.dark *));
+
+/* Light — neutral zinc; primary is near-black. */
+:root {
+	--ts-radius: 0.5rem;
+	--ts-bg: hsl(0 0% 100%);
+	--ts-fg: hsl(240 10% 4%);
+	--ts-card: hsl(0 0% 100%);
+	--ts-card-fg: hsl(240 10% 4%);
+	--ts-popover: hsl(0 0% 100%);
+	--ts-popover-fg: hsl(240 10% 4%);
+	--ts-primary: hsl(240 6% 10%);
+	--ts-primary-fg: hsl(0 0% 98%);
+	--ts-secondary: hsl(240 5% 96%);
+	--ts-secondary-fg: hsl(240 6% 10%);
+	--ts-muted: hsl(240 5% 96%);
+	--ts-muted-fg: hsl(240 4% 46%);
+	--ts-accent: hsl(240 5% 96%);
+	--ts-accent-fg: hsl(240 6% 10%);
+	--ts-danger: hsl(0 72% 51%);
+	--ts-danger-fg: hsl(0 0% 98%);
+	--ts-border: hsl(240 6% 90%);
+	--ts-input: hsl(240 6% 90%);
+	--ts-ring: hsl(240 5% 65%);
+}
+
+/* Dark — neutral zinc; primary is near-white. */
+.dark {
+	--ts-bg: hsl(240 10% 4%);
+	--ts-fg: hsl(0 0% 98%);
+	--ts-card: hsl(240 6% 10%);
+	--ts-card-fg: hsl(0 0% 98%);
+	--ts-popover: hsl(240 6% 10%);
+	--ts-popover-fg: hsl(0 0% 98%);
+	--ts-primary: hsl(0 0% 98%);
+	--ts-primary-fg: hsl(240 6% 10%);
+	--ts-secondary: hsl(240 4% 16%);
+	--ts-secondary-fg: hsl(0 0% 98%);
+	--ts-muted: hsl(240 4% 16%);
+	--ts-muted-fg: hsl(240 5% 65%);
+	--ts-accent: hsl(240 4% 16%);
+	--ts-accent-fg: hsl(0 0% 98%);
+	--ts-danger: hsl(0 63% 31%);
+	--ts-danger-fg: hsl(0 0% 98%);
+	--ts-border: hsl(240 4% 16%);
+	--ts-input: hsl(240 4% 16%);
+	--ts-ring: hsl(240 5% 34%);
+}
+
+/*
+ * Map the color names the editor's classes use onto our tokens, so
+ * `bg-background`, `text-foreground`, `border-border`, `bg-primary`,
+ * `text-muted-foreground`, `bg-secondary`, `bg-destructive`, `ring`, etc.
+ * all just work.
+ */
+@theme inline {
+	--radius-sm: calc(var(--ts-radius) - 4px);
+	--radius-md: calc(var(--ts-radius) - 2px);
+	--radius-lg: var(--ts-radius);
+	--radius-xl: calc(var(--ts-radius) + 4px);
+
+	--color-background: var(--ts-bg);
+	--color-foreground: var(--ts-fg);
+	--color-card: var(--ts-card);
+	--color-card-foreground: var(--ts-card-fg);
+	--color-popover: var(--ts-popover);
+	--color-popover-foreground: var(--ts-popover-fg);
+	--color-primary: var(--ts-primary);
+	--color-primary-foreground: var(--ts-primary-fg);
+	--color-secondary: var(--ts-secondary);
+	--color-secondary-foreground: var(--ts-secondary-fg);
+	--color-muted: var(--ts-muted);
+	--color-muted-foreground: var(--ts-muted-fg);
+	--color-accent: var(--ts-accent);
+	--color-accent-foreground: var(--ts-accent-fg);
+	--color-destructive: var(--ts-danger);
+	--color-destructive-foreground: var(--ts-danger-fg);
+	--color-border: var(--ts-border);
+	--color-input: var(--ts-input);
+	--color-ring: var(--ts-ring);
+}

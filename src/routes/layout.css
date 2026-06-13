@@ -1,0 +1,5 @@
+/* Demo app styles: pull in the library theme (which imports Tailwind + defines
+   the --ts-* tokens), and tell Tailwind to scan the library source so the
+   utility classes the editor uses are generated. */
+@import '../lib/app.css';
+@source '../lib';

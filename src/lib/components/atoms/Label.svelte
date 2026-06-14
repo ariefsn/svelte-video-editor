@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
-	import Label from '../../ui/Label.svelte';
+	import { cn } from '../../utils.js';
 
 	let {
 		for: htmlFor,
@@ -9,6 +9,6 @@
 	}: { for?: string; class?: string; children?: Snippet } = $props();
 </script>
 
-<Label for={htmlFor} class={className}>
+<label for={htmlFor} class={cn('text-sm leading-none font-medium select-none', className)}>
 	{@render children?.()}
-</Label>
+</label>

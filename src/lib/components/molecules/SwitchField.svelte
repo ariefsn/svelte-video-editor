@@ -1,7 +1,6 @@
 <script lang="ts">
-	import Switch from '../../ui/Switch.svelte';
-	import Label from '../../ui/Label.svelte';
-	import { uid } from '../../../utils.js';
+	import { Switch, Label } from '../atoms/index.js';
+	import { uid } from '../../utils.js';
 
 	type Props = {
 		id?: string;

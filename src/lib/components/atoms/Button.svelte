@@ -13,6 +13,10 @@
 	export type ButtonProps = HTMLButtonAttributes & {
 		variant?: ButtonVariant;
 		size?: ButtonSize;
+		/** Full width on mobile, auto from `md` up. */
+		fullWidthMobile?: boolean;
+		/** Full width at every breakpoint. */
+		block?: boolean;
 		class?: string;
 	};
 
@@ -41,6 +45,8 @@
 	let {
 		variant = 'default',
 		size = 'default',
+		fullWidthMobile = false,
+		block = false,
 		class: className,
 		type = 'button',
 		children,
@@ -54,6 +60,8 @@
 		'inline-flex cursor-pointer items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50',
 		VARIANTS[variant],
 		SIZES[size],
+		fullWidthMobile && 'w-full md:w-auto',
+		block && 'w-full',
 		className
 	)}
 	{...restProps}

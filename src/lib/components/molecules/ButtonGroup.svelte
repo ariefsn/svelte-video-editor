@@ -1,20 +1,29 @@
 <script lang="ts" module>
+	import type { Snippet } from 'svelte';
+
 	export type ButtonGroupOption = {
 		value: string;
-		label: string;
+		/** Text label; optional when an `icon` is supplied. */
+		label?: string;
+		/** Icon snippet rendered before the label (or alone, for icon-only tabs). */
+		icon?: Snippet;
+		/** Accessible name — required when the option is icon-only. */
+		ariaLabel?: string;
 		disabled?: boolean;
 	};
 </script>
 
 <script lang="ts">
-	import Button from './Button.svelte';
-	import { cn } from '../../../utils.js';
+	import { Button } from '../atoms/index.js';
+	import { cn } from '../../utils.js';
 
 	type Props = {
 		value: string;
 		options: ButtonGroupOption[];
 		orientation?: 'horizontal' | 'vertical';
 		size?: 'sm' | 'default' | 'lg' | 'icon';
+		/** Make every button share equal width (1/n of the group). */
+		equalWidth?: boolean;
 		onValueChange?: (value: string) => void;
 		class?: string;
 	};
@@ -24,6 +33,7 @@
 		options,
 		orientation = 'horizontal',
 		size = 'sm',
+		equalWidth = false,
 		onValueChange,
 		class: className
 	}: Props = $props();
@@ -45,10 +55,15 @@
 		<Button
 			variant={value === opt.value ? 'default' : 'outline'}
 			{size}
+			class={cn(
+				equalWidth ? 'flex-1 basis-0 px-0' : opt.icon && !opt.label && 'aspect-square px-0'
+			)}
 			disabled={opt.disabled}
+			aria-label={opt.ariaLabel}
 			onclick={() => onValueChange?.(opt.value)}
 		>
-			{opt.label}
+			{@render opt.icon?.()}
+			{#if opt.label}{opt.label}{/if}
 		</Button>
 	{/each}
 </div>

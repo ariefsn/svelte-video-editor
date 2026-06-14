@@ -1,6 +1,6 @@
 # Frontend Engineering Contract — Atomic Design (STRICT)
 
-This is a standalone Svelte 5 component library (`svelte-timeline-studio`). The only
+This is a standalone Svelte 5 component library (`svelte-video-editor`). The only
 architectural rules that apply here are the **Atomic Design** layering rules below.
 
 Stack:
@@ -22,13 +22,14 @@ Any generated code violating these rules is **invalid**.
 src/
   lib/
     components/
-      ui/                  # zero-dependency low-level primitives (hand-rolled, NOT shadcn)
-      atomic/
-        atoms/
-        molecules/
-        organisms/
-        templates/
-    core/                  # pure, framework-light logic (state, ops, geometry, ...)
+      atoms/               # zero/low-dependency primitives (hand-rolled, NOT shadcn):
+                           #   Button, Input, Label, Textarea, Switch, Tooltip, Dialog,
+                           #   Select, Slider, EmptyPlaceholder, popover/, context-menu/
+      molecules/           # compositions of 2+ atoms (small local UI state ok):
+                           #   InputText, InputTextArea, ButtonGroup, SwitchField,
+                           #   ConfirmDialog, RenameProjectDialog, Sheet
+      organisms/           # large UI blocks (the editor's section components)
+    core/                  # pure, framework-light logic (state, ops, geometry, viewport, ...)
     i18n/
     types/
     index.ts               # public API
@@ -43,35 +44,33 @@ src/
 Dependency direction is **strict**:
 
 ```
-ui → atoms → molecules → organisms → templates → routes
+atoms → molecules → organisms → templates → routes
 ```
 
-- **DO NOT** import `ui` directly in molecules, organisms, or templates.
-- `ui` **MUST BE** imported in atoms only.
-- Skipping layers is **forbidden**.
+- Atoms are the lowest layer — the former `ui/` primitives were dissolved into `atoms/`.
+- Skipping layers is **forbidden**, with the documented organism exception below.
 
 ### Import rules
 
-| Layer | May import | Forbidden |
-|---|---|---|
-| Routes | templates, types | ui, atoms, molecules, organisms |
-| Templates | organisms | molecules, atoms, ui |
-| Organisms | molecules (and `core/`, `i18n/`, `types/`) | templates, routes |
-| Molecules | atoms | organisms, templates, routes |
-| Atoms | ui | molecules, organisms, templates, routes |
-| UI | (nothing component-level) | everything above |
+| Layer     | May import                                 | Forbidden                               |
+| --------- | ------------------------------------------ | --------------------------------------- |
+| Routes    | templates, types                           | atoms, molecules, organisms             |
+| Templates | organisms                                  | molecules, atoms                        |
+| Organisms | molecules (and `core/`, `i18n/`, `types/`) | templates, routes                       |
+| Molecules | atoms                                      | organisms, templates, routes            |
+| Atoms     | (nothing component-level)                  | molecules, organisms, templates, routes |
 
 > Note: this library keeps the editor's section components in `organisms/`; they may import
-> `core/`, `i18n/`, `types/` and `atoms` / `ui/{popover,context-menu}` primitives directly,
-> since those primitives have no shadcn/bits-ui dependency.
+> `core/`, `i18n/`, `types/` and `atoms/` primitives directly — including `atoms/popover`,
+> `atoms/context-menu` and `atoms/Dialog` — since those primitives have no shadcn/bits-ui
+> dependency and wrapping them in molecules would add indirection for no benefit.
 
 ---
 
 # 3. Component Responsibility
 
-- **UI** — low-level primitives (Button, Input, Dialog, Popover, Tooltip, ContextMenu, …). No business logic, no API calls, no orchestration.
-- **Atoms** — pure visual components (Avatar, Badge, Label, Icon). Stateless; no API calls; no stores.
-- **Molecules** — small UI compositions (SearchInput, FormField, UserCard). Small local UI state allowed; no API calls.
+- **Atoms** — low-level primitives and pure visual components (Button, Input, Dialog, Popover, Tooltip, ContextMenu, Label, Slider, …). Stateless; no business logic, no API calls, no stores, no orchestration.
+- **Molecules** — small compositions of 2+ atoms (InputText = Input+Label, ButtonGroup, ConfirmDialog, Sheet, …). Small local UI state allowed; no API calls.
 - **Organisms** — large UI blocks. Accept props/snippets; no fetching; orchestration stays at the host.
 - **Templates** — page layout composition. Layout only.
 - **Routes** — orchestration (the demo harness here).
@@ -111,5 +110,5 @@ If a component grows well beyond its budget, prefer splitting it.
 # 7. Browser-only
 
 This is a **browser-only** library (DOM, `<video>`/`<audio>`, canvas, rAF). It is safe to
-*import* on the server but must *render* only in the browser — keep all browser API access out
+_import_ on the server but must _render_ only in the browser — keep all browser API access out
 of module scope (inside functions / `onMount`). Never read or write browser storage in `src/lib`.

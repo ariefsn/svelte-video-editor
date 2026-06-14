@@ -32,6 +32,7 @@ the host.
 > `requestAnimationFrame`). It is safe to _import_ on the server, but render it client-side only
 > (see [SvelteKit (SSR)](#sveltekit-ssr)).
 
+- **Demo:** [https://svelte-video-editor.ariefsn.dev](https://svelte-video-editor.ariefsn.dev)
 - **Repo:** [https://github.com/ariefsn/svelte-video-editor](https://github.com/ariefsn/svelte-video-editor)
 
 ## Contents
@@ -326,15 +327,15 @@ plain field on the clip, so it round-trips through `onChange` / `onExport` for t
 
 ```ts
 import {
-  type ClipAnimation,
-  type ClipTransition,
-  type AnimPreset, // 'fade' | 'slide-left'|'slide-right'|'slide-up'|'slide-down'
-  // | 'scale' | 'zoom' | 'bounce' | 'pop' | 'spin' | 'blur' | 'wipe' | 'flip'
-  type Easing, // 'linear' | 'ease-in' | 'ease-out' | 'ease-in-out'
-  ANIM_PRESETS,
-  EASINGS,
-  defaultTransition,
-  clipAnimStyle // pure: (clip, playheadSec, fps) => { opacity, transform, filter, clipPath }
+	type ClipAnimation,
+	type ClipTransition,
+	type AnimPreset, // 'fade' | 'slide-left'|'slide-right'|'slide-up'|'slide-down'
+	// | 'scale' | 'zoom' | 'bounce' | 'pop' | 'spin' | 'blur' | 'wipe' | 'flip'
+	type Easing, // 'linear' | 'ease-in' | 'ease-out' | 'ease-in-out'
+	ANIM_PRESETS,
+	EASINGS,
+	defaultTransition,
+	clipAnimStyle // pure: (clip, playheadSec, fps) => { opacity, transform, filter, clipPath }
 } from '@ariefsn/svelte-video-editor';
 
 // On each clip:  clip.animation?: { in?: ClipTransition; out?: ClipTransition }

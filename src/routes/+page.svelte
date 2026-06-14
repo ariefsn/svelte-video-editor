@@ -2,6 +2,7 @@
 	import { theme } from './theme.svelte.js';
 
 	const pkg = '@ariefsn/svelte-video-editor';
+	const title = 'Svelte Video Editor';
 	const tagline =
 		'A host-agnostic Svelte 5 video timeline editor — clips, tracks, trimming, ripple/roll/slip edits, built-in transitions, grouping, linked audio, markers, undo/redo and a real-time preview. Responsive & mobile-ready. Zero design-system dependency.';
 	const description =
@@ -9,6 +10,11 @@
 
 	const githubUrl = 'https://github.com/ariefsn/svelte-video-editor';
 	const npmUrl = `https://www.npmjs.com/package/${pkg}`;
+
+	const siteUrl = 'https://svelte-video-editor.ariefsn.dev';
+	const ogImage = `${siteUrl}/og-image.png`;
+	const keywords =
+		'svelte, svelte5, sveltekit, video editor, video timeline, timeline editor, clips, tracks, trimming, ripple edit, roll edit, slip edit, transitions, markers, undo redo, tailwindcss, typescript, component library';
 
 	const installers = [
 		{ id: 'bun', label: 'bun', cmd: `bun add ${pkg}` },
@@ -33,20 +39,23 @@
 </script>
 
 <svelte:head>
-	<title>svelte-video-editor — host-agnostic Svelte 5 video timeline editor</title>
+	<title>{title} — A Host-Agnostic Video Editor with Svelte 5</title>
 	<meta name="description" content={description} />
+	<meta name="keywords" content={keywords} />
 	<link rel="canonical" href={githubUrl} />
 
 	<meta property="og:type" content="website" />
-	<meta property="og:title" content="svelte-video-editor" />
+	<meta property="og:title" content={title} />
 	<meta property="og:description" content={description} />
-	<meta property="og:image" content="/logo.svg" />
-	<meta property="og:url" content={githubUrl} />
+	<meta property="og:image" content={ogImage} />
+	<meta property="og:image:width" content="1200" />
+	<meta property="og:image:height" content="630" />
+	<meta property="og:url" content={siteUrl} />
 
-	<meta name="twitter:card" content="summary" />
-	<meta name="twitter:title" content="svelte-video-editor" />
+	<meta name="twitter:card" content="summary_large_image" />
+	<meta name="twitter:title" content={title} />
 	<meta name="twitter:description" content={description} />
-	<meta name="twitter:image" content="/logo.svg" />
+	<meta name="twitter:image" content={ogImage} />
 </svelte:head>
 
 <div class="min-h-screen bg-background text-foreground">
@@ -64,7 +73,7 @@
 		<section class="flex flex-col items-start gap-6">
 			<a href="/" class="flex items-center gap-4">
 				<img src="/logo.svg" alt="" width="56" height="56" class="rounded-xl" />
-				<h1 class="text-2xl font-bold tracking-tight sm:text-3xl">svelte-video-editor</h1>
+				<h1 class="text-2xl font-bold tracking-tight sm:text-3xl">Svelte Video Editor</h1>
 			</a>
 			<p class="text-lg text-muted-foreground">{tagline}</p>
 

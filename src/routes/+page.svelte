@@ -3,9 +3,9 @@
 
 	const pkg = '@ariefsn/svelte-video-editor';
 	const tagline =
-		'A host-agnostic Svelte 5 video timeline editor — clips, tracks, trimming, ripple/roll/slip edits, grouping, linked audio, markers, undo/redo and a real-time preview. Zero design-system dependency.';
+		'A host-agnostic Svelte 5 video timeline editor — clips, tracks, trimming, ripple/roll/slip edits, built-in transitions, grouping, linked audio, markers, undo/redo and a real-time preview. Responsive & mobile-ready. Zero design-system dependency.';
 	const description =
-		'A host-agnostic Svelte 5 video timeline editor with clips, tracks, trimming, ripple/roll/slip edits, grouping, linked audio, markers, undo/redo and a real-time DOM preview. No framework lock-in, Tailwind v4 theming, zero design-system dependency.';
+		'A host-agnostic Svelte 5 video timeline editor with clips, tracks, trimming, ripple/roll/slip edits, built-in clip transitions, grouping, linked audio, markers, undo/redo and a real-time DOM preview. Responsive layout with mobile sheets, Tailwind v4 theming, no framework lock-in, zero design-system dependency.';
 
 	const githubUrl = 'https://github.com/ariefsn/svelte-video-editor';
 	const npmUrl = `https://www.npmjs.com/package/${pkg}`;
@@ -21,10 +21,12 @@
 	const features = [
 		['Clips & tracks', 'Multi-track timeline with drag, trim, split and snap.'],
 		['Ripple / roll / slip', 'Premiere/CapCut-style precision edits.'],
+		['Built-in transitions', 'Per-clip enter/exit: fade, slide, zoom, bounce, flip + more.'],
 		['Grouping & linked audio', 'Group clips and keep A/V in sync.'],
 		['Markers & in/out range', 'Annotate and define export ranges.'],
 		['Undo / redo', 'Full edit history out of the box.'],
-		['Real-time preview', 'Live DOM preview of the composition.'],
+		['Real-time preview', 'Live DOM preview that scrubs transitions with the playhead.'],
+		['Responsive & mobile', 'Panels collapse into sheets; touch-friendly on phones.'],
 		['Host-agnostic', 'You own assets, export, persistence and i18n.'],
 		['Tailwind v4 theming', 'Restyle via the shipped --ts-* CSS variables.']
 	];

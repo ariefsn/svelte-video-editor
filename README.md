@@ -19,7 +19,13 @@ undo/redo, and a real-time DOM preview. No framework lock-in: all external conce
 thumbnails, export, permissions, persistence, notifications, confirmation, i18n) are injected by
 the host.
 
+- **Built-in clip transitions** — per-clip enter/exit animations (fade, slide, scale, zoom,
+  bounce, pop, spin, blur, wipe, flip) with duration + easing, scrubbed live by the playhead.
+- **Responsive & mobile-ready** — the bin and clip inspector collapse into bottom sheets, the
+  toolbar folds into an overflow menu, and clip options are reachable by touch.
 - **The library owns no storage** — you persist the project (and pane height) however you like.
+  Every clip's `animation` rides along in the project JSON, so the host can render it any way it
+  likes on export.
 - **Tailwind v4 theming** — ships a simple light/dark theme you can override via CSS variables.
 
 > ⚠️ **Browser-only.** This component renders in the browser (DOM, `<video>`/`<audio>`, canvas,
@@ -36,6 +42,7 @@ the host.
 - [Advanced mode](#advanced-mode) — snippets, i18n, host-owned state
 - [SvelteKit (SSR)](#sveltekit-ssr)
 - [Host contract](#host-contract)
+- [Clip transitions](#clip-transitions) — built-in enter/exit animations
 - [Section overrides](#section-overrides-snippets)
 - [Custom preview renderer](#custom-preview-renderer) — Remotion, canvas, anything
 - [Localization](#localization)
@@ -302,12 +309,41 @@ SvelteKit is SSR by default and the editor needs the DOM — render it under a b
 | `onNotify`                                  | `(message, kind) => void`             | ❌       | Transient feedback sink; no-ops if absent.                                          |
 | `messages`                                  | `Partial<Messages>`                   | ❌       | Override/translate any label (the single i18n source).                              |
 | `confirm`                                   | `(opts) => Promise<boolean>`          | ❌       | Use your own confirm dialog instead of the built-in.                                |
-| `timelineHeight` / `onTimelineHeightChange` | `number` / `(h) => void`              | ❌       | Host-owned pane height.                                                             |
+| `timelineHeight` / `onTimelineHeightChange` | `number` / `(h) => void`              | ❌       | Host-owned timeline pane height.                                                    |
+| `binWidth` / `onBinWidthChange`             | `number` / `(w) => void`              | ❌       | Host-owned bin column width (desktop; draggable separator).                         |
+| `inspectorWidth` / `onInspectorWidthChange` | `number` / `(w) => void`              | ❌       | Host-owned inspector column width (desktop; draggable separator).                   |
 | `magneticMainTrack`                         | `boolean`                             | ❌       | CapCut-style packing on the first track.                                            |
 | `changeDebounceMs`                          | `number`                              | ❌       | Debounce for `onChange`.                                                            |
 
 `ProjectListView` is also exported for a "pick/create a project" screen (`projects`, `onOpen`,
 `onCreate`, `onRename`, `onDelete`, plus optional `messages` / `confirm`).
+
+## Clip transitions
+
+Every clip (video, image, text) can carry an optional **enter** and **exit** transition, edited from
+the inspector's **Animation** section and previewed live (the playhead scrubs them). The data is a
+plain field on the clip, so it round-trips through `onChange` / `onExport` for the host to render.
+
+```ts
+import {
+  type ClipAnimation,
+  type ClipTransition,
+  type AnimPreset, // 'fade' | 'slide-left'|'slide-right'|'slide-up'|'slide-down'
+  // | 'scale' | 'zoom' | 'bounce' | 'pop' | 'spin' | 'blur' | 'wipe' | 'flip'
+  type Easing, // 'linear' | 'ease-in' | 'ease-out' | 'ease-in-out'
+  ANIM_PRESETS,
+  EASINGS,
+  defaultTransition,
+  clipAnimStyle // pure: (clip, playheadSec, fps) => { opacity, transform, filter, clipPath }
+} from '@ariefsn/svelte-video-editor';
+
+// On each clip:  clip.animation?: { in?: ClipTransition; out?: ClipTransition }
+// ClipTransition = { preset: AnimPreset; durationF: number; easing: Easing }
+```
+
+To render transitions yourself (e.g. a custom/Remotion compositor), call `clipAnimStyle(clip,
+playheadSec, fps)` for the exact per-frame visual the editor preview uses — preview and export then
+match frame-for-frame. See [docs/clip-animations-research.md](./docs/clip-animations-research.md).
 
 ## Section overrides (snippets)
 

@@ -40,6 +40,11 @@ export type { NotifyFn, NotifyKind } from './core/notify.js';
 export { migrateProject } from './core/migration.js';
 export { uid, cn, formatLocalDateTime } from './utils.js';
 
+// ---- clip transitions -----------------------------------------------------
+// Pure helper so a host's custom/server renderer can reproduce the editor's
+// per-frame visual for a clip's enter/exit animation exactly.
+export { clipAnimStyle, ease, type AnimStyle } from './core/animation.js';
+
 // ---- i18n -----------------------------------------------------------------
 export {
 	defaultMessages,
@@ -54,6 +59,9 @@ export {
 	createEmptyProject,
 	createTrack,
 	defaultTextClipStyle,
+	defaultTransition,
+	ANIM_PRESETS,
+	EASINGS,
 	clipEndF,
 	clipHasAudio,
 	clipKindForMediaType,
@@ -77,6 +85,10 @@ export {
 	type MediaClipKind,
 	type TextClip,
 	type TextClipStyle,
+	type AnimPreset,
+	type Easing,
+	type ClipTransition,
+	type ClipAnimation,
 	type TimelineTrack,
 	type TimelineMarker,
 	type TimelineRange,

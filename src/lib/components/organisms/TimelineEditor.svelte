@@ -1,24 +1,27 @@
 <script lang="ts">
 	import { onMount, type Snippet } from 'svelte';
-	import type { BinItem, TimelineProject } from '../../../types/timeline.js';
+	import type { BinItem, TimelineProject } from '../../types/timeline.js';
 	import { Tooltip } from '../atoms/index.js';
-	import ConfirmDialog from './ConfirmDialog.svelte';
-	import { migrateProject } from '../../../core/migration.js';
-	import { setEditorHost, type EditorHost, type SectionCtx } from '../../../core/host.js';
-	import type { OpFailReason } from '../../../core/ops.js';
-	import { setTimelineEditor, TimelineEditorStore } from '../../../core/state.svelte.js';
+	import ConfirmDialog from '../molecules/ConfirmDialog.svelte';
+	import Sheet from '../molecules/Sheet.svelte';
+	import { createIsMobile } from '../../core/viewport.svelte.js';
+	import { FolderOpen } from '@lucide/svelte';
+	import { migrateProject } from '../../core/migration.js';
+	import { setEditorHost, type EditorHost, type SectionCtx } from '../../core/host.js';
+	import type { OpFailReason } from '../../core/ops.js';
+	import { setTimelineEditor, TimelineEditorStore } from '../../core/state.svelte.js';
 	import {
 		resolveMessages,
 		setMessagesProvider,
 		type MessageKey,
 		type MessagesOverride
-	} from '../../../i18n/messages.js';
-	import { setNotify, type NotifyFn } from '../../../core/notify.js';
+	} from '../../i18n/messages.js';
+	import { setNotify, type NotifyFn } from '../../core/notify.js';
 	import {
 		createConfirmController,
 		setConfirmController,
 		type ConfirmFn
-	} from '../../../core/confirm.svelte.js';
+	} from '../../core/confirm.svelte.js';
 	import AssetBinPanel from './AssetBinPanel.svelte';
 	import InspectorPanel from './InspectorPanel.svelte';
 	import PreviewStage from './PreviewStage.svelte';
@@ -54,6 +57,14 @@
 		timelineHeight?: number;
 		/** Fired when the user drags the pane divider; host may persist it. */
 		onTimelineHeightChange?: (height: number) => void;
+		/** Initial bin-column width (px); host owns persistence. */
+		binWidth?: number;
+		/** Fired when the user drags the bin divider; host may persist it. */
+		onBinWidthChange?: (width: number) => void;
+		/** Initial inspector-column width (px); host owns persistence. */
+		inspectorWidth?: number;
+		/** Fired when the user drags the inspector divider; host may persist it. */
+		onInspectorWidthChange?: (width: number) => void;
 		/** Host-owned import UI rendered inside the bin panel. */
 		binImport?: Snippet<[{ addItems: (items: BinItem[]) => void }]>;
 		/** Optional section overrides. Each replaces the corresponding default
@@ -84,6 +95,10 @@
 		confirm,
 		timelineHeight,
 		onTimelineHeightChange,
+		binWidth,
+		onBinWidthChange,
+		inspectorWidth,
+		onInspectorWidthChange,
 		binImport,
 		toolbar,
 		assetBin,
@@ -153,6 +168,26 @@
 		onRequestDelete: requestDeleteSelected
 	};
 
+	// Responsive layout: below the `md` breakpoint the side panels (bin, inspector)
+	// don't fit, so they move into bottom sheets. `isMobile` is false during SSR
+	// and the first render (desktop-first), so the sidebars are the default.
+	const viewport = createIsMobile();
+	const isMobile = $derived(viewport.current);
+	let binSheetOpen = $state(false);
+	let inspectorSheetOpen = $state(false);
+
+	// On mobile, auto-open the inspector sheet when the active clip *changes*
+	// (not on every reactive read) so a manual close isn't immediately undone.
+	let lastActiveClipId: string | null = null;
+	$effect(() => {
+		const id = editor.activeClipId;
+		if (id !== lastActiveClipId) {
+			lastActiveClipId = id;
+			if (isMobile && id) inspectorSheetOpen = true;
+			if (!id) inspectorSheetOpen = false;
+		}
+	});
+
 	// Preview/timeline split: the timeline pane has an explicit height (dragged
 	// via the divider). The height is host-owned — initial value in via
 	// `timelineHeight`, changes out via `onTimelineHeightChange`. The library
@@ -164,7 +199,7 @@
 	let timelineH = $state<number | null>(timelineHeight ?? null);
 	const timelineHpx = $derived(
 		Math.min(
-			Math.max(timelineH ?? containerH * 0.4, MIN_TIMELINE_H),
+			Math.max(timelineH ?? containerH * 0.25, MIN_TIMELINE_H),
 			Math.max(containerH - MIN_PREVIEW_H, MIN_TIMELINE_H)
 		)
 	);
@@ -200,6 +235,86 @@
 		e.preventDefault();
 		timelineH = timelineHpx + (e.key === 'ArrowUp' ? 16 : -16);
 		persistTimelineH();
+	}
+
+	// Bin/inspector column widths — same host-owned pattern as the timeline height,
+	// but horizontal. Desktop-only (mobile uses the bottom sheets).
+	const MIN_BIN_W = 160;
+	const MIN_MAIN_W = 320;
+	const MIN_INSPECTOR_W = 200;
+
+	let containerW = $state(0);
+	let binW = $state<number | null>(binWidth ?? null);
+	let inspectorW = $state<number | null>(inspectorWidth ?? null);
+
+	const binWpx = $derived(
+		Math.min(
+			Math.max(binW ?? 240, MIN_BIN_W),
+			Math.max(containerW - MIN_MAIN_W - MIN_INSPECTOR_W, MIN_BIN_W)
+		)
+	);
+	const inspectorWpx = $derived(
+		Math.min(
+			Math.max(inspectorW ?? 256, MIN_INSPECTOR_W),
+			Math.max(containerW - MIN_MAIN_W - MIN_BIN_W, MIN_INSPECTOR_W)
+		)
+	);
+
+	let resizeStartX = 0;
+	let resizeStartW = 0;
+
+	function persistBinW() {
+		binW = binWpx;
+		onBinWidthChange?.(binWpx);
+	}
+	function persistInspectorW() {
+		inspectorW = inspectorWpx;
+		onInspectorWidthChange?.(inspectorWpx);
+	}
+
+	function onBinResizeDown(e: PointerEvent) {
+		(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+		resizeStartX = e.clientX;
+		resizeStartW = binWpx;
+	}
+	function onBinResizeMove(e: PointerEvent) {
+		if (!(e.currentTarget as HTMLElement).hasPointerCapture(e.pointerId)) return;
+		binW = resizeStartW + (e.clientX - resizeStartX);
+	}
+	function onBinResizeUp(e: PointerEvent) {
+		const el = e.currentTarget as HTMLElement;
+		if (!el.hasPointerCapture(e.pointerId)) return;
+		el.releasePointerCapture(e.pointerId);
+		persistBinW();
+	}
+	function onBinResizeKeydown(e: KeyboardEvent) {
+		if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+		e.preventDefault();
+		binW = binWpx + (e.key === 'ArrowRight' ? 16 : -16);
+		persistBinW();
+	}
+
+	// The inspector handle sits on the panel's LEFT edge, so dragging left widens.
+	function onInspectorResizeDown(e: PointerEvent) {
+		(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+		resizeStartX = e.clientX;
+		resizeStartW = inspectorWpx;
+	}
+	function onInspectorResizeMove(e: PointerEvent) {
+		if (!(e.currentTarget as HTMLElement).hasPointerCapture(e.pointerId)) return;
+		inspectorW = resizeStartW + (resizeStartX - e.clientX);
+	}
+	function onInspectorResizeUp(e: PointerEvent) {
+		const el = e.currentTarget as HTMLElement;
+		if (!el.hasPointerCapture(e.pointerId)) return;
+		el.releasePointerCapture(e.pointerId);
+		persistInspectorW();
+	}
+	function onInspectorResizeKeydown(e: KeyboardEvent) {
+		if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+		e.preventDefault();
+		inspectorW = inspectorWpx + (e.key === 'ArrowLeft' ? 16 : -16);
+		persistInspectorW();
 	}
 
 	function isEditableTarget(e: KeyboardEvent): boolean {
@@ -293,8 +408,37 @@
 
 <svelte:window onkeydown={handleKeydown} onbeforeunload={() => editor.flush()} />
 
+{#snippet colDivider(handlers: {
+	label: string;
+	tipSide: 'left' | 'right';
+	down: (e: PointerEvent) => void;
+	move: (e: PointerEvent) => void;
+	up: (e: PointerEvent) => void;
+	keydown: (e: KeyboardEvent) => void;
+})}
+	<Tooltip text={handlers.label} side={handlers.tipSide}>
+		{#snippet child({ props })}
+			<div
+				{...props}
+				role="separator"
+				aria-orientation="vertical"
+				aria-label={handlers.label}
+				tabindex="0"
+				class="group flex w-1.5 shrink-0 cursor-col-resize touch-none items-center justify-center hover:bg-primary/10 focus-visible:bg-primary/10 focus-visible:outline-none"
+				onpointerdown={handlers.down}
+				onpointermove={handlers.move}
+				onpointerup={handlers.up}
+				onpointercancel={handlers.up}
+				onkeydown={handlers.keydown}
+			>
+				<div class="h-10 w-1 rounded-full bg-border group-hover:bg-primary/60"></div>
+			</div>
+		{/snippet}
+	</Tooltip>
+{/snippet}
+
 <div
-	class="flex h-full min-h-0 flex-col overflow-hidden rounded-lg border bg-background"
+	class="flex h-full min-h-0 flex-col overflow-hidden rounded-lg border bg-background text-foreground"
 	bind:clientHeight={containerH}
 >
 	{#if toolbar}
@@ -303,15 +447,40 @@
 		<TimelineToolbar {onBack} onRequestDelete={requestDeleteSelected} />
 	{/if}
 
-	<div class="flex min-h-0 flex-1">
+	<div class="flex min-h-0 flex-1" bind:clientWidth={containerW}>
 		{#if assetBin}
 			{@render assetBin(sectionCtx)}
-		{:else}
-			<aside class="w-60 shrink-0 border-r lg:w-72">
+		{:else if !isMobile}
+			<aside class="shrink-0 border-r" style="width: {binWpx}px;">
 				<AssetBinPanel {binImport} />
 			</aside>
+			{@render colDivider({
+				label: t.resize_bin,
+				tipSide: 'right',
+				down: onBinResizeDown,
+				move: onBinResizeMove,
+				up: onBinResizeUp,
+				keydown: onBinResizeKeydown
+			})}
 		{/if}
 		<main class="flex min-w-0 flex-1 flex-col">
+			{#if isMobile && !assetBin}
+				<div class="flex shrink-0 items-center gap-2 border-b px-2 py-1.5">
+					<Tooltip text={t.media_library}>
+						{#snippet child({ props })}
+							<button
+								{...props}
+								type="button"
+								class="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-medium text-foreground hover:bg-accent"
+								onclick={() => (binSheetOpen = true)}
+							>
+								<FolderOpen class="size-4" />
+								{t.media_library}
+							</button>
+						{/snippet}
+					</Tooltip>
+				</div>
+			{/if}
 			{#if preview}
 				{@render preview(sectionCtx)}
 			{:else}
@@ -327,8 +496,16 @@
 		</main>
 		{#if inspector}
 			{@render inspector(sectionCtx)}
-		{:else if editor.activeClip}
-			<aside class="w-64 shrink-0 border-l lg:w-72">
+		{:else if editor.activeClip && !isMobile}
+			{@render colDivider({
+				label: t.resize_inspector,
+				tipSide: 'left',
+				down: onInspectorResizeDown,
+				move: onInspectorResizeMove,
+				up: onInspectorResizeUp,
+				keydown: onInspectorResizeKeydown
+			})}
+			<aside class="shrink-0 border-l" style="width: {inspectorWpx}px;">
 				<InspectorPanel onRequestDelete={requestDeleteSelected} />
 			</aside>
 		{/if}
@@ -368,6 +545,26 @@
 		<ShortcutsFooter />
 	{/if}
 </div>
+
+<!-- Mobile-only: built-in bin & inspector move into bottom sheets. Section
+     overrides keep rendering inline in the layout above, so the sheets only
+     host the defaults. -->
+{#if isMobile && !assetBin}
+	<Sheet bind:open={binSheetOpen}>
+		{#snippet title()}{t.media_library}{/snippet}
+		<div class="h-[60vh]">
+			<AssetBinPanel {binImport} />
+		</div>
+	</Sheet>
+{/if}
+
+{#if isMobile && !inspector && editor.activeClip}
+	<Sheet bind:open={inspectorSheetOpen}>
+		<div class="h-[60vh]">
+			<InspectorPanel onRequestDelete={requestDeleteSelected} />
+		</div>
+	</Sheet>
+{/if}
 
 <!-- Built-in confirmation dialog (used only when no host `confirm` is supplied). -->
 <ConfirmDialog

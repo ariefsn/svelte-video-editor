@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { useMessages } from '../../../i18n/messages.js';
-	import { cn } from '../../../utils.js';
+	import { useMessages } from '../../i18n/messages.js';
+	import { cn } from '../../utils.js';
 	import {
 		Copy,
 		Film,
@@ -16,23 +16,23 @@
 		Unlink,
 		Volume1
 	} from '@lucide/svelte';
-	import {
-		ContextMenu,
-		ContextMenuContent,
-		ContextMenuItem,
-		ContextMenuSeparator,
-		ContextMenuTrigger
-	} from '../../ui/context-menu/index.js';
+	import { ContextMenu } from '../atoms/index.js';
 	import {
 		clipEndF,
 		clipHasAudio,
 		isMediaClip,
 		type TimelineClip,
 		type TimelineTrack
-	} from '../../../types/timeline.js';
-	import { formatTimecode, frameToPx, groupColor, pxToFrame, SNAP_PX } from '../../../core/geometry.js';
-	import { linkedPartner, isClipLocked } from '../../../core/ops.js';
-	import { useTimelineEditor } from '../../../core/state.svelte.js';
+	} from '../../types/timeline.js';
+	import {
+		formatTimecode,
+		frameToPx,
+		groupColor,
+		pxToFrame,
+		SNAP_PX
+	} from '../../core/geometry.js';
+	import { linkedPartner, isClipLocked } from '../../core/ops.js';
+	import { useTimelineEditor } from '../../core/state.svelte.js';
 
 	const t = useMessages();
 
@@ -251,186 +251,181 @@
 </script>
 
 <ContextMenu>
-	<ContextMenuTrigger>
-		{#snippet child({ props })}
-			<div
-				{...props}
-				role="button"
-				tabindex="-1"
-				aria-label={clip.name}
-				class={cn(
-					'absolute inset-y-0.5 flex touch-none items-center gap-1 overflow-hidden rounded-md border px-1.5 text-xs text-white select-none',
-					kindClasses[clip.kind],
-					selected && 'ring-2 ring-primary',
-					linkedHighlight && 'ring-1 ring-cyan-400/80',
-					inDrag && 'z-50 opacity-80',
-					isDragPrimary && drag?.insert && 'ring-2 ring-orange-400',
-					locked ? 'cursor-not-allowed opacity-70' : 'cursor-grab active:cursor-grabbing'
-				)}
-				style="left: {frameToPx(clip.startF, fps, zoom)}px; width: {Math.max(
-					4,
-					frameToPx(clip.durationF, fps, zoom)
-				)}px; transform: translate({dragDxPx}px, {dragDyPx}px); {clip.groupId
-					? `box-shadow: inset 0 0 0 2px ${groupColor(clip.groupId)};`
-					: ''}"
-				onpointerdown={onBodyPointerDown}
-				onpointermove={onPointerMove}
-				onpointerup={onPointerUp}
-				onpointercancel={onPointerUp}
-			>
-				{#if fadeInPx > 0}
-					<div
-						class="pointer-events-none absolute inset-y-0 left-0 bg-gradient-to-r from-black/50 to-transparent"
-						style="width: {Math.min(fadeInPx, frameToPx(clip.durationF, fps, zoom))}px;"
-					></div>
-				{/if}
-				{#if fadeOutPx > 0}
-					<div
-						class="pointer-events-none absolute inset-y-0 right-0 bg-gradient-to-l from-black/50 to-transparent"
-						style="width: {Math.min(fadeOutPx, frameToPx(clip.durationF, fps, zoom))}px;"
-					></div>
-				{/if}
-
-				{#if clip.kind === 'video'}
-					<Film class="size-3 shrink-0" />
-				{:else if clip.kind === 'image'}
-					<ImageIcon class="size-3 shrink-0" />
-				{:else if clip.kind === 'audio'}
-					<Music class="size-3 shrink-0" />
-				{:else}
-					<Type class="size-3 shrink-0" />
-				{/if}
-				<span class="truncate">{isMediaClip(clip) ? clip.name : clip.text}</span>
-				{#if isMediaClip(clip) && clip.linkId}
-					<Link2
-						class={cn('ml-auto size-3 shrink-0', linkBroken && 'text-red-300')}
-						style={!linkBroken ? 'color: #22d3ee;' : ''}
-					/>
-				{/if}
-				{#if clip.groupId && !(isMediaClip(clip) && clip.linkId)}
-					<Link2 class="ml-auto size-3 shrink-0" style="color: {groupColor(clip.groupId)};" />
-				{/if}
-				{#if clip.locked}
-					<Lock class="size-3 shrink-0 opacity-80" />
-				{/if}
-
-				{#if slipping && isMediaClip(clip)}
-					<div
-						class="absolute top-0 left-1/2 z-10 -translate-x-1/2 rounded bg-black/80 px-1 font-mono text-[9px] whitespace-nowrap"
-					>
-						{formatTimecode(clip.trimInF, fps)} → {formatTimecode(
-							clip.trimInF + clip.durationF,
-							fps
-						)}
-					</div>
-				{/if}
-
-				{#if selected && !locked}
-					<div
-						role="presentation"
-						class="absolute inset-y-0 left-0 w-1.5 cursor-ew-resize rounded-l-md bg-primary/90"
-						onpointerdown={(e) => onTrimPointerDown(e, 'trim-left')}
-						onpointermove={onPointerMove}
-						onpointerup={onPointerUp}
-						onpointercancel={onPointerUp}
-					></div>
-					<div
-						role="presentation"
-						class="absolute inset-y-0 right-0 w-1.5 cursor-ew-resize rounded-r-md bg-primary/90"
-						onpointerdown={(e) => onTrimPointerDown(e, 'trim-right')}
-						onpointermove={onPointerMove}
-						onpointerup={onPointerUp}
-						onpointercancel={onPointerUp}
-					></div>
-					{#if hasAudio}
-						<div
-							role="presentation"
-							title={t.fade_in}
-							class="absolute top-0 size-2.5 -translate-x-1/2 cursor-ew-resize rounded-full border border-white bg-black/70"
-							style="left: {Math.max(5, fadeInPx)}px;"
-							onpointerdown={(e) => onFadePointerDown(e, 'fade-in')}
-							onpointermove={onPointerMove}
-							onpointerup={onPointerUp}
-							onpointercancel={onPointerUp}
-						></div>
-						<div
-							role="presentation"
-							title={t.fade_out}
-							class="absolute top-0 size-2.5 translate-x-1/2 cursor-ew-resize rounded-full border border-white bg-black/70"
-							style="right: {Math.max(5, fadeOutPx)}px;"
-							onpointerdown={(e) => onFadePointerDown(e, 'fade-out')}
-							onpointermove={onPointerMove}
-							onpointerup={onPointerUp}
-							onpointercancel={onPointerUp}
-						></div>
-					{/if}
-				{/if}
-
-				{#if prevAdjacentId && !locked}
-					<div
-						role="presentation"
-						title={t.roll_edit}
-						class="absolute inset-y-0 -left-1 z-10 w-2 cursor-col-resize bg-transparent hover:bg-cyan-400/60"
-						onpointerdown={onRollPointerDown}
-						onpointermove={onPointerMove}
-						onpointerup={onPointerUp}
-						onpointercancel={onPointerUp}
-					></div>
-				{/if}
-			</div>
-		{/snippet}
-	</ContextMenuTrigger>
-	<ContextMenuContent>
-		<ContextMenuItem onclick={() => (editor.selectClip(clip.id, false), editor.cutSelection())}>
-			<Scissors class="size-4" />{t.cut}
-		</ContextMenuItem>
-		<ContextMenuItem onclick={() => (editor.selectClip(clip.id, false), editor.copySelection())}>
-			<Copy class="size-4" />{t.copy}
-		</ContextMenuItem>
-		<ContextMenuItem
-			onclick={() => (editor.selectClip(clip.id, false), editor.duplicateSelected())}
+	{#snippet trigger({ props })}
+		<div
+			{...props}
+			role="button"
+			tabindex="-1"
+			aria-label={clip.name}
+			class={cn(
+				'absolute inset-y-0.5 flex touch-none items-center gap-1 overflow-hidden rounded-md border px-1.5 text-xs text-white select-none',
+				kindClasses[clip.kind],
+				selected && 'ring-2 ring-primary',
+				linkedHighlight && 'ring-1 ring-cyan-400/80',
+				inDrag && 'z-50 opacity-80',
+				isDragPrimary && drag?.insert && 'ring-2 ring-orange-400',
+				locked ? 'cursor-not-allowed opacity-70' : 'cursor-grab active:cursor-grabbing'
+			)}
+			style="left: {frameToPx(clip.startF, fps, zoom)}px; width: {Math.max(
+				4,
+				frameToPx(clip.durationF, fps, zoom)
+			)}px; transform: translate({dragDxPx}px, {dragDyPx}px); {clip.groupId
+				? `box-shadow: inset 0 0 0 2px ${groupColor(clip.groupId)};`
+				: ''}"
+			onpointerdown={onBodyPointerDown}
+			onpointermove={onPointerMove}
+			onpointerup={onPointerUp}
+			onpointercancel={onPointerUp}
 		>
-			<Copy class="size-4" />{t.duplicate}
-		</ContextMenuItem>
-		<ContextMenuItem onclick={contextSplit}>
-			<SplitSquareHorizontal class="size-4" />{t.split}
-		</ContextMenuItem>
-		<ContextMenuSeparator />
+			{#if fadeInPx > 0}
+				<div
+					class="pointer-events-none absolute inset-y-0 left-0 bg-gradient-to-r from-black/50 to-transparent"
+					style="width: {Math.min(fadeInPx, frameToPx(clip.durationF, fps, zoom))}px;"
+				></div>
+			{/if}
+			{#if fadeOutPx > 0}
+				<div
+					class="pointer-events-none absolute inset-y-0 right-0 bg-gradient-to-l from-black/50 to-transparent"
+					style="width: {Math.min(fadeOutPx, frameToPx(clip.durationF, fps, zoom))}px;"
+				></div>
+			{/if}
+
+			{#if clip.kind === 'video'}
+				<Film class="size-3 shrink-0" />
+			{:else if clip.kind === 'image'}
+				<ImageIcon class="size-3 shrink-0" />
+			{:else if clip.kind === 'audio'}
+				<Music class="size-3 shrink-0" />
+			{:else}
+				<Type class="size-3 shrink-0" />
+			{/if}
+			<span class="truncate">{isMediaClip(clip) ? clip.name : clip.text}</span>
+			{#if isMediaClip(clip) && clip.linkId}
+				<Link2
+					class={cn('ml-auto size-3 shrink-0', linkBroken && 'text-red-300')}
+					style={!linkBroken ? 'color: #22d3ee;' : ''}
+				/>
+			{/if}
+			{#if clip.groupId && !(isMediaClip(clip) && clip.linkId)}
+				<Link2 class="ml-auto size-3 shrink-0" style="color: {groupColor(clip.groupId)};" />
+			{/if}
+			{#if clip.locked}
+				<Lock class="size-3 shrink-0 opacity-80" />
+			{/if}
+
+			{#if slipping && isMediaClip(clip)}
+				<div
+					class="absolute top-0 left-1/2 z-10 -translate-x-1/2 rounded bg-black/80 px-1 font-mono text-[9px] whitespace-nowrap"
+				>
+					{formatTimecode(clip.trimInF, fps)} → {formatTimecode(clip.trimInF + clip.durationF, fps)}
+				</div>
+			{/if}
+
+			{#if selected && !locked}
+				<div
+					role="presentation"
+					class="absolute inset-y-0 left-0 w-1.5 cursor-ew-resize rounded-l-md bg-primary/90"
+					onpointerdown={(e) => onTrimPointerDown(e, 'trim-left')}
+					onpointermove={onPointerMove}
+					onpointerup={onPointerUp}
+					onpointercancel={onPointerUp}
+				></div>
+				<div
+					role="presentation"
+					class="absolute inset-y-0 right-0 w-1.5 cursor-ew-resize rounded-r-md bg-primary/90"
+					onpointerdown={(e) => onTrimPointerDown(e, 'trim-right')}
+					onpointermove={onPointerMove}
+					onpointerup={onPointerUp}
+					onpointercancel={onPointerUp}
+				></div>
+				{#if hasAudio}
+					<div
+						role="presentation"
+						title={t.fade_in}
+						class="absolute top-0 size-2.5 -translate-x-1/2 cursor-ew-resize rounded-full border border-white bg-black/70"
+						style="left: {Math.max(5, fadeInPx)}px;"
+						onpointerdown={(e) => onFadePointerDown(e, 'fade-in')}
+						onpointermove={onPointerMove}
+						onpointerup={onPointerUp}
+						onpointercancel={onPointerUp}
+					></div>
+					<div
+						role="presentation"
+						title={t.fade_out}
+						class="absolute top-0 size-2.5 translate-x-1/2 cursor-ew-resize rounded-full border border-white bg-black/70"
+						style="right: {Math.max(5, fadeOutPx)}px;"
+						onpointerdown={(e) => onFadePointerDown(e, 'fade-out')}
+						onpointermove={onPointerMove}
+						onpointerup={onPointerUp}
+						onpointercancel={onPointerUp}
+					></div>
+				{/if}
+			{/if}
+
+			{#if prevAdjacentId && !locked}
+				<div
+					role="presentation"
+					title={t.roll_edit}
+					class="absolute inset-y-0 -left-1 z-10 w-2 cursor-col-resize bg-transparent hover:bg-cyan-400/60"
+					onpointerdown={onRollPointerDown}
+					onpointermove={onPointerMove}
+					onpointerup={onPointerUp}
+					onpointercancel={onPointerUp}
+				></div>
+			{/if}
+		</div>
+	{/snippet}
+	{#snippet content({ item, separator })}
+		{#snippet cutLabel()}<Scissors class="size-4" />{t.cut}{/snippet}
+		{@render item({
+			children: cutLabel,
+			onclick: () => (editor.selectClip(clip.id, false), editor.cutSelection())
+		})}
+		{#snippet copyLabel()}<Copy class="size-4" />{t.copy}{/snippet}
+		{@render item({
+			children: copyLabel,
+			onclick: () => (editor.selectClip(clip.id, false), editor.copySelection())
+		})}
+		{#snippet duplicateLabel()}<Copy class="size-4" />{t.duplicate}{/snippet}
+		{@render item({
+			children: duplicateLabel,
+			onclick: () => (editor.selectClip(clip.id, false), editor.duplicateSelected())
+		})}
+		{#snippet splitLabel()}<SplitSquareHorizontal class="size-4" />{t.split}{/snippet}
+		{@render item({ children: splitLabel, onclick: contextSplit })}
+		{@render separator()}
 		{#if isMediaClip(clip) && clip.kind === 'video' && !clip.audioDetached}
-			<ContextMenuItem onclick={() => editor.detachAudio(clip.id)}>
-				<Volume1 class="size-4" />{t.detach_audio}
-			</ContextMenuItem>
+			{#snippet detachLabel()}<Volume1 class="size-4" />{t.detach_audio}{/snippet}
+			{@render item({ children: detachLabel, onclick: () => editor.detachAudio(clip.id) })}
 		{/if}
 		{#if isMediaClip(clip) && clip.linkId}
-			<ContextMenuItem onclick={() => editor.toggleLink(clip.id)}>
-				<Unlink class="size-4" />{t.unlink}
-			</ContextMenuItem>
+			{#snippet unlinkLabel()}<Unlink class="size-4" />{t.unlink}{/snippet}
+			{@render item({ children: unlinkLabel, onclick: () => editor.toggleLink(clip.id) })}
 		{/if}
 		{#if hasAudio && nextAdjacent && clipHasAudio(nextAdjacent)}
-			<ContextMenuItem
-				onclick={() => nextAdjacent && editor.addCrossfade(clip.id, nextAdjacent.id)}
-			>
-				<Volume1 class="size-4" />{t.add_crossfade}
-			</ContextMenuItem>
+			{#snippet crossfadeLabel()}<Volume1 class="size-4" />{t.add_crossfade}{/snippet}
+			{@render item({
+				children: crossfadeLabel,
+				onclick: () => nextAdjacent && editor.addCrossfade(clip.id, nextAdjacent.id)
+			})}
 		{/if}
-		<ContextMenuItem onclick={() => editor.toggleClipLock(clip.id)}>
-			{#if clip.locked}<LockOpen class="size-4" />{t.unlock}{:else}<Lock
+		{#snippet lockLabel()}{#if clip.locked}<LockOpen class="size-4" />{t.unlock}{:else}<Lock
 					class="size-4"
-				/>{t.lock}{/if}
-		</ContextMenuItem>
-		<ContextMenuSeparator />
-		<ContextMenuItem
-			variant="destructive"
-			onclick={() => (editor.selectClip(clip.id, false), onRequestDelete())}
-		>
-			<Trash2 class="size-4" />{t.delete_clips}
-		</ContextMenuItem>
-		<ContextMenuItem
-			variant="destructive"
-			disabled={isClipLocked(editor.project, clip)}
-			onclick={() => (editor.selectClip(clip.id, false), editor.rippleDeleteSelected())}
-		>
-			<Trash2 class="size-4" />{t.ripple_delete}
-		</ContextMenuItem>
-	</ContextMenuContent>
+				/>{t.lock}{/if}{/snippet}
+		{@render item({ children: lockLabel, onclick: () => editor.toggleClipLock(clip.id) })}
+		{@render separator()}
+		{#snippet deleteLabel()}<Trash2 class="size-4" />{t.delete_clips}{/snippet}
+		{@render item({
+			children: deleteLabel,
+			variant: 'destructive',
+			onclick: () => (editor.selectClip(clip.id, false), onRequestDelete())
+		})}
+		{#snippet rippleLabel()}<Trash2 class="size-4" />{t.ripple_delete}{/snippet}
+		{@render item({
+			children: rippleLabel,
+			variant: 'destructive',
+			disabled: isClipLocked(editor.project, clip),
+			onclick: () => (editor.selectClip(clip.id, false), editor.rippleDeleteSelected())
+		})}
+	{/snippet}
 </ContextMenu>

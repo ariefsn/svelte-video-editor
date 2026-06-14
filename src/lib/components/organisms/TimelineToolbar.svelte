@@ -1,6 +1,7 @@
 <script lang="ts">
-	import { useMessages } from '../../../i18n/messages.js';
-	import { Button, ButtonGroup, Select, Tooltip } from '../atoms/index.js';
+	import { useMessages } from '../../i18n/messages.js';
+	import { Button, Select, Tooltip } from '../atoms/index.js';
+	import { ButtonGroup } from '../molecules/index.js';
 	import {
 		ArrowLeft,
 		Download,
@@ -17,11 +18,11 @@
 		Undo2,
 		Ungroup
 	} from '@lucide/svelte';
-	import { FPS_OPTIONS, type TimelineAspectRatio, type TimelineFps } from '../../../types/timeline.js';
-	import { useEditorHost } from '../../../core/host.js';
-	import { useTimelineEditor } from '../../../core/state.svelte.js';
+	import { FPS_OPTIONS, type TimelineAspectRatio, type TimelineFps } from '../../types/timeline.js';
+	import { useEditorHost } from '../../core/host.js';
+	import { useTimelineEditor } from '../../core/state.svelte.js';
 	import EditorIconButton from './EditorIconButton.svelte';
-	import RenameProjectDialog from './RenameProjectDialog.svelte';
+	import RenameProjectDialog from '../molecules/RenameProjectDialog.svelte';
 
 	const t = useMessages();
 
@@ -102,18 +103,10 @@
 
 	<div class="mx-1 h-5 w-px bg-border"></div>
 
-	<EditorIconButton
-		label={t.undo}
-		disabled={!editor.canUndo}
-		onclick={() => editor.undo()}
-	>
+	<EditorIconButton label={t.undo} disabled={!editor.canUndo} onclick={() => editor.undo()}>
 		<Undo2 class="size-4" />
 	</EditorIconButton>
-	<EditorIconButton
-		label={t.redo}
-		disabled={!editor.canRedo}
-		onclick={() => editor.redo()}
-	>
+	<EditorIconButton label={t.redo} disabled={!editor.canRedo} onclick={() => editor.redo()}>
 		<Redo2 class="size-4" />
 	</EditorIconButton>
 
@@ -126,11 +119,7 @@
 	>
 		<Scissors class="size-4" />
 	</EditorIconButton>
-	<EditorIconButton
-		label={t.group}
-		disabled={!canGroup}
-		onclick={() => editor.groupSelection()}
-	>
+	<EditorIconButton label={t.group} disabled={!canGroup} onclick={() => editor.groupSelection()}>
 		<Group class="size-4" />
 	</EditorIconButton>
 	<EditorIconButton

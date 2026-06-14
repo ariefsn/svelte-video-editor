@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { cn } from '../../../utils.js';
-	import type { TextClip } from '../../../types/timeline.js';
-	import { useTimelineEditor } from '../../../core/state.svelte.js';
+	import { cn } from '../../utils.js';
+	import type { TextClip } from '../../types/timeline.js';
+	import { useTimelineEditor } from '../../core/state.svelte.js';
 
 	type Props = {
 		clip: TextClip;

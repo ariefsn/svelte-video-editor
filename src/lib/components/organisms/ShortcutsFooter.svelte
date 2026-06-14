@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { useMessages } from '../../../i18n/messages.js';
+	import { useMessages } from '../../i18n/messages.js';
 
 	const t = useMessages();
 

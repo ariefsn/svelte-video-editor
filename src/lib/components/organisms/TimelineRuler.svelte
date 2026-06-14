@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { cn } from '../../../utils.js';
-	import { clipEndF, isMediaClip, secToFrame, type MediaClip } from '../../../types/timeline.js';
+	import { cn } from '../../utils.js';
+	import { clipEndF, isMediaClip, secToFrame, type MediaClip } from '../../types/timeline.js';
 	import {
 		formatTimecode,
 		frameToPx,
@@ -8,9 +8,9 @@
 		pxToTime,
 		rulerInterval,
 		TRACK_HEADER_W
-	} from '../../../core/geometry.js';
-	import { useEditorHost } from '../../../core/host.js';
-	import { useTimelineEditor } from '../../../core/state.svelte.js';
+	} from '../../core/geometry.js';
+	import { useEditorHost } from '../../core/host.js';
+	import { useTimelineEditor } from '../../core/state.svelte.js';
 	import MarkerFlag from './MarkerFlag.svelte';
 
 	type Props = {
@@ -121,9 +121,7 @@
 	}
 </script>
 
-<div
-	class="sticky top-0 z-30 flex h-7 w-full overflow-x-clip border-b bg-background"
->
+<div class="sticky top-0 z-30 flex h-7 w-full overflow-x-clip border-b bg-background">
 	<div
 		class="sticky left-0 z-10 h-full shrink-0 border-r bg-background"
 		style="width: {TRACK_HEADER_W}px;"

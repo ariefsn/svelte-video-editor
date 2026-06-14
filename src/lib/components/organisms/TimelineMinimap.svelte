@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { cn } from '../../../utils.js';
-	import { clipEndF } from '../../../types/timeline.js';
-	import { useTimelineEditor } from '../../../core/state.svelte.js';
+	import { cn } from '../../utils.js';
+	import { clipEndF } from '../../types/timeline.js';
+	import { useTimelineEditor } from '../../core/state.svelte.js';
 
 	// Whole-project overview with a draggable viewport window.
 	type Props = {

@@ -1,10 +1,10 @@
 <script lang="ts">
-	import { useMessages } from '../../../i18n/messages.js';
-	import { cn } from '../../../utils.js';
+	import { useMessages } from '../../i18n/messages.js';
+	import { cn } from '../../utils.js';
 	import { Film, Image as ImageIcon, Music, X } from '@lucide/svelte';
-	import type { BinItem } from '../../../types/timeline.js';
+	import type { BinItem } from '../../types/timeline.js';
 	import { Button, Tooltip } from '../atoms/index.js';
-	import { formatDuration, BIN_ITEM_MIME_PREFIX } from '../../../core/geometry.js';
+	import { formatDuration, BIN_ITEM_MIME_PREFIX } from '../../core/geometry.js';
 
 	const t = useMessages();
 

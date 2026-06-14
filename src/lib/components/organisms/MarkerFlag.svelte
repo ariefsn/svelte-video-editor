@@ -1,11 +1,11 @@
 <script lang="ts">
-	import { useMessages } from '../../../i18n/messages.js';
-	import * as Popover from '../../ui/popover/index.js';
-	import { Button, InputText, Tooltip } from '../atoms/index.js';
+	import { useMessages } from '../../i18n/messages.js';
+	import { Button, Popover, Tooltip } from '../atoms/index.js';
+	import { InputText } from '../molecules/index.js';
 	import { Trash2 } from '@lucide/svelte';
-	import { MARKER_COLORS, type TimelineMarker } from '../../../types/timeline.js';
-	import { frameToPx, pxToFrame } from '../../../core/geometry.js';
-	import { useTimelineEditor } from '../../../core/state.svelte.js';
+	import { MARKER_COLORS, type TimelineMarker } from '../../types/timeline.js';
+	import { frameToPx, pxToFrame } from '../../core/geometry.js';
+	import { useTimelineEditor } from '../../core/state.svelte.js';
 
 	const t = useMessages();
 
@@ -54,26 +54,24 @@
 	}
 </script>
 
-<Popover.Root bind:open>
-	<Popover.Trigger>
-		{#snippet child({ props })}
-			<div
-				{...props}
-				role="button"
-				tabindex="-1"
-				aria-label={marker.label || t.marker}
-				class="absolute top-0 z-20 h-full w-2 -translate-x-1/2 cursor-pointer touch-none"
-				style="left: {frameToPx(marker.frame, fps, zoom)}px;"
-				onpointerdown={onPointerDown}
-				onpointermove={onPointerMove}
-				onpointerup={onPointerUp}
-				onpointercancel={onPointerUp}
-			>
-				<div class="mx-auto h-2.5 w-2 rounded-b-sm" style="background-color: {marker.color};"></div>
-			</div>
-		{/snippet}
-	</Popover.Trigger>
-	<Popover.Content class="w-56 p-3">
+<Popover bind:open contentClass="w-56 p-3">
+	{#snippet trigger({ props })}
+		<div
+			{...props}
+			role="button"
+			tabindex="-1"
+			aria-label={marker.label || t.marker}
+			class="absolute top-0 z-20 h-full w-2 -translate-x-1/2 cursor-pointer touch-none"
+			style="left: {frameToPx(marker.frame, fps, zoom)}px;"
+			onpointerdown={onPointerDown}
+			onpointermove={onPointerMove}
+			onpointerup={onPointerUp}
+			onpointercancel={onPointerUp}
+		>
+			<div class="mx-auto h-2.5 w-2 rounded-b-sm" style="background-color: {marker.color};"></div>
+		</div>
+	{/snippet}
+	{#snippet content()}
 		<div class="flex flex-col gap-2">
 			<InputText
 				placeholder={t.marker_label}
@@ -122,5 +120,5 @@
 				</Tooltip>
 			</div>
 		</div>
-	</Popover.Content>
-</Popover.Root>
+	{/snippet}
+</Popover>

@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { useMessages } from '../../../i18n/messages.js';
+	import { useMessages } from '../../i18n/messages.js';
 	import { LocateFixed, Pause, Play, Repeat } from '@lucide/svelte';
-	import { formatTimecode } from '../../../core/geometry.js';
-	import { useTimelineEditor } from '../../../core/state.svelte.js';
+	import { formatTimecode } from '../../core/geometry.js';
+	import { useTimelineEditor } from '../../core/state.svelte.js';
 	import EditorIconButton from './EditorIconButton.svelte';
 
 	const t = useMessages();

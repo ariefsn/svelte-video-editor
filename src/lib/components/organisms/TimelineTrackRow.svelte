@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { useMessages } from '../../../i18n/messages.js';
-	import { cn } from '../../../utils.js';
+	import { useMessages } from '../../i18n/messages.js';
+	import { cn } from '../../utils.js';
 	import {
 		Eye,
 		EyeOff,
@@ -12,24 +12,24 @@
 		Volume2,
 		VolumeX
 	} from '@lucide/svelte';
-	import {
-		ContextMenu,
-		ContextMenuContent,
-		ContextMenuItem,
-		ContextMenuTrigger
-	} from '../../ui/context-menu/index.js';
-	import { InputText } from '../atoms/index.js';
-	import { useConfirm } from '../../../core/confirm.svelte.js';
+	import { ContextMenu } from '../atoms/index.js';
+	import { InputText } from '../molecules/index.js';
+	import { useConfirm } from '../../core/confirm.svelte.js';
 	import {
 		clipEndF,
 		TRACK_HEIGHT_MAX,
 		TRACK_HEIGHT_MIN,
 		type TimelineClip,
 		type TimelineTrack
-	} from '../../../types/timeline.js';
-	import { frameToPx, pxToFrame, BIN_ITEM_MIME_PREFIX, TRACK_HEADER_W } from '../../../core/geometry.js';
-	import { gapAt, type Gap } from '../../../core/ops.js';
-	import { useTimelineEditor } from '../../../core/state.svelte.js';
+	} from '../../types/timeline.js';
+	import {
+		frameToPx,
+		pxToFrame,
+		BIN_ITEM_MIME_PREFIX,
+		TRACK_HEADER_W
+	} from '../../core/geometry.js';
+	import { gapAt, type Gap } from '../../core/ops.js';
+	import { useTimelineEditor } from '../../core/state.svelte.js';
 	import EditorIconButton from './EditorIconButton.svelte';
 	import TimelineClipView from './TimelineClipView.svelte';
 
@@ -287,10 +287,7 @@
 						<LockOpen class="size-3.5" />
 					{/if}
 				</EditorIconButton>
-				<EditorIconButton
-					label={t.delete_track}
-					onclick={requestDeleteTrack}
-				>
+				<EditorIconButton label={t.delete_track} onclick={requestDeleteTrack}>
 					<Trash2 class="size-3.5" />
 				</EditorIconButton>
 			</div>
@@ -298,66 +295,72 @@
 	</div>
 
 	<ContextMenu>
-		<ContextMenuTrigger>
-			{#snippet child({ props })}
-				<div
-					{...props}
-					role="list"
-					aria-label={track.name}
-					class={cn('relative h-full flex-1', dragOver && 'bg-primary/10', track.hidden && 'opacity-50')}
-					style="min-width: {contentWidth}px;"
-					{@attach attachLane}
-					ondragover={onDragOver}
-					ondragleave={() => (dragOver = false)}
-					ondrop={onDrop}
-					onpointerdown={onLanePointerDown}
-					oncontextmenu={onLaneContextMenu}
-				>
-					{#if selectedGap}
-						<div
-							class="pointer-events-none absolute inset-y-1 rounded border-2 border-dashed border-primary/70 bg-primary/10"
-							style="left: {frameToPx(selectedGap.startF, fps, zoom)}px; width: {frameToPx(
-								selectedGap.endF - selectedGap.startF,
-								fps,
-								zoom
-							)}px;"
-						></div>
-					{/if}
-					{#each visibleClips as clip (clip.id)}
-						<TimelineClipView
-							{clip}
-							{track}
-							prevAdjacentId={prevAdjacentId(clip)}
-							{findTrackAt}
-							{onRequestDelete}
-						/>
-					{/each}
-				</div>
-			{/snippet}
-		</ContextMenuTrigger>
-		<ContextMenuContent>
+		{#snippet trigger({ props })}
+			<div
+				{...props}
+				role="list"
+				aria-label={track.name}
+				class={cn(
+					'relative h-full flex-1',
+					dragOver && 'bg-primary/10',
+					track.hidden && 'opacity-50'
+				)}
+				style="min-width: {contentWidth}px;"
+				{@attach attachLane}
+				ondragover={onDragOver}
+				ondragleave={() => (dragOver = false)}
+				ondrop={onDrop}
+				onpointerdown={onLanePointerDown}
+				oncontextmenu={(e) => {
+					onLaneContextMenu(e);
+					props.oncontextmenu(e);
+				}}
+			>
+				{#if selectedGap}
+					<div
+						class="pointer-events-none absolute inset-y-1 rounded border-2 border-dashed border-primary/70 bg-primary/10"
+						style="left: {frameToPx(selectedGap.startF, fps, zoom)}px; width: {frameToPx(
+							selectedGap.endF - selectedGap.startF,
+							fps,
+							zoom
+						)}px;"
+					></div>
+				{/if}
+				{#each visibleClips as clip (clip.id)}
+					<TimelineClipView
+						{clip}
+						{track}
+						prevAdjacentId={prevAdjacentId(clip)}
+						{findTrackAt}
+						{onRequestDelete}
+					/>
+				{/each}
+			</div>
+		{/snippet}
+		{#snippet content({ item })}
 			{#if ctxGap}
 				{@const gap = ctxGap}
-				<ContextMenuItem
-					onclick={() => {
+				{#snippet closeGap()}{t.close_gap}{/snippet}
+				{@render item({
+					children: closeGap,
+					onclick: () => {
 						editor.selectGap(track.id, gap.startF);
 						editor.closeSelectedGap(false);
-					}}
-				>
-					{t.close_gap}
-				</ContextMenuItem>
-				<ContextMenuItem
-					onclick={() => {
+					}
+				})}
+				{#snippet closeGapAll()}{t.close_gap_all}{/snippet}
+				{@render item({
+					children: closeGapAll,
+					onclick: () => {
 						editor.selectGap(track.id, gap.startF);
 						editor.closeSelectedGap(true);
-					}}
-				>
-					{t.close_gap_all}
-				</ContextMenuItem>
+					}
+				})}
 			{:else}
-				<ContextMenuItem disabled>{t.no_gap_here}</ContextMenuItem>
+				{#snippet noGap()}{t.no_gap_here}{/snippet}
+				{@render item({ children: noGap, disabled: true })}
 			{/if}
-		</ContextMenuContent>
+		{/snippet}
 	</ContextMenu>
 
 	<div

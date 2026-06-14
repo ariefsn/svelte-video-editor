@@ -1,18 +1,11 @@
 <script lang="ts">
-	import { useMessages } from '../../../i18n/messages.js';
-	import {
-		ButtonGroup,
-		InputText,
-		InputTextArea,
-		Label,
-		Select,
-		Slider,
-		Switch
-	} from '../atoms/index.js';
+	import { useMessages } from '../../i18n/messages.js';
+	import { Label, Select, Slider, Switch } from '../atoms/index.js';
+	import { ButtonGroup, InputText, InputTextArea } from '../molecules/index.js';
 	import { Lock, LockOpen, SlidersHorizontal, Trash2 } from '@lucide/svelte';
-	import { frameToSec, isMediaClip, isTextClip, type TextClipStyle } from '../../../types/timeline.js';
-	import { formatDuration, formatTimecode } from '../../../core/geometry.js';
-	import { useTimelineEditor } from '../../../core/state.svelte.js';
+	import { frameToSec, isMediaClip, isTextClip, type TextClipStyle } from '../../types/timeline.js';
+	import { formatDuration, formatTimecode } from '../../core/geometry.js';
+	import { useTimelineEditor } from '../../core/state.svelte.js';
 	import EditorIconButton from './EditorIconButton.svelte';
 
 	const t = useMessages();
@@ -67,7 +60,16 @@
 		</div>
 	{:else}
 		<div class="flex items-center justify-between gap-2">
-			<h3 class="truncate text-sm font-medium">{clip.name}</h3>
+			<!-- Text clips edit their content in the Text field below, so the name
+			     header would just duplicate it — fill that slot with the timecode
+			     instead; media clips keep the name here. -->
+			{#if isTextClip(clip)}
+				<p class="truncate text-xs text-muted-foreground">
+					{formatTimecode(clip.startF, fps)} · {formatDuration(frameToSec(clip.durationF, fps))}
+				</p>
+			{:else}
+				<h3 class="truncate text-sm font-medium text-foreground">{clip.name}</h3>
+			{/if}
 			<div class="flex shrink-0 items-center">
 				<EditorIconButton
 					label={clip.locked ? t.unlock : t.lock}
@@ -86,9 +88,11 @@
 				</EditorIconButton>
 			</div>
 		</div>
-		<p class="mt-1 text-xs text-muted-foreground">
-			{formatTimecode(clip.startF, fps)} · {formatDuration(frameToSec(clip.durationF, fps))}
-		</p>
+		{#if !isTextClip(clip)}
+			<p class="mt-1 text-xs text-muted-foreground">
+				{formatTimecode(clip.startF, fps)} · {formatDuration(frameToSec(clip.durationF, fps))}
+			</p>
+		{/if}
 
 		{#if isTextClip(clip)}
 			<div class="mt-4 flex flex-col gap-4">

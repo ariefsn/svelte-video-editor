@@ -1,10 +1,10 @@
 <script lang="ts">
-	import { useMessages } from '../../../i18n/messages.js';
+	import { useMessages } from '../../i18n/messages.js';
 	import { onDestroy } from 'svelte';
-	import { useNotify } from '../../../core/notify.js';
+	import { useNotify } from '../../core/notify.js';
 	import { Slider, Tooltip } from '../atoms/index.js';
 	import { ZoomIn, ZoomOut } from '@lucide/svelte';
-	import { clipEndF, ZOOM_MAX, ZOOM_MIN, type TimelineClip } from '../../../types/timeline.js';
+	import { clipEndF, ZOOM_MAX, ZOOM_MIN, type TimelineClip } from '../../types/timeline.js';
 	import {
 		frameToPx,
 		pxToFrame,
@@ -12,8 +12,8 @@
 		timeToPx,
 		BIN_ITEM_MIME_PREFIX,
 		TRACK_HEADER_W
-	} from '../../../core/geometry.js';
-	import { useTimelineEditor } from '../../../core/state.svelte.js';
+	} from '../../core/geometry.js';
+	import { useTimelineEditor } from '../../core/state.svelte.js';
 	import EditorIconButton from './EditorIconButton.svelte';
 	import TimelineMinimap from './TimelineMinimap.svelte';
 	import TimelineRuler from './TimelineRuler.svelte';
@@ -224,10 +224,7 @@
 			/>
 		</div>
 		<div class="flex shrink-0 items-center gap-1">
-			<EditorIconButton
-				label={t.zoom_out}
-				onclick={() => editor.setZoom(zoom / 1.25)}
-			>
+			<EditorIconButton label={t.zoom_out} onclick={() => editor.setZoom(zoom / 1.25)}>
 				<ZoomOut class="size-3.5" />
 			</EditorIconButton>
 			<Tooltip text={t.zoom}>
@@ -245,10 +242,7 @@
 					</div>
 				{/snippet}
 			</Tooltip>
-			<EditorIconButton
-				label={t.zoom_in}
-				onclick={() => editor.setZoom(zoom * 1.25)}
-			>
+			<EditorIconButton label={t.zoom_in} onclick={() => editor.setZoom(zoom * 1.25)}>
 				<ZoomIn class="size-3.5" />
 			</EditorIconButton>
 		</div>

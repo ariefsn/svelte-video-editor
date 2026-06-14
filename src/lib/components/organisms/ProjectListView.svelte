@@ -1,21 +1,21 @@
 <script lang="ts">
 	import { Clapperboard, Pencil, Plus, Trash2 } from '@lucide/svelte';
 	import { Button, EmptyPlaceholder } from '../atoms/index.js';
-	import ConfirmDialog from './ConfirmDialog.svelte';
-	import type { TimelineProject } from '../../../types/timeline.js';
-	import { formatLocalDateTime } from '../../../utils.js';
+	import ConfirmDialog from '../molecules/ConfirmDialog.svelte';
+	import type { TimelineProject } from '../../types/timeline.js';
+	import { formatLocalDateTime } from '../../utils.js';
 	import {
 		resolveMessages,
 		setMessagesProvider,
 		type MessagesOverride
-	} from '../../../i18n/messages.js';
+	} from '../../i18n/messages.js';
 	import {
 		createConfirmController,
 		setConfirmController,
 		type ConfirmFn
-	} from '../../../core/confirm.svelte.js';
+	} from '../../core/confirm.svelte.js';
 	import EditorIconButton from './EditorIconButton.svelte';
-	import RenameProjectDialog from './RenameProjectDialog.svelte';
+	import RenameProjectDialog from '../molecules/RenameProjectDialog.svelte';
 
 	type Props = {
 		projects: TimelineProject[];
@@ -60,7 +60,7 @@
 	}
 </script>
 
-<div class="flex flex-col gap-4">
+<div class="flex flex-col gap-4 text-foreground">
 	<div class="flex items-center justify-between">
 		<h2 class="text-lg font-semibold">{t.projects_title}</h2>
 		<Button onclick={onCreate}>

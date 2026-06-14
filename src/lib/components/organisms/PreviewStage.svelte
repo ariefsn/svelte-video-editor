@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { useMessages } from '../../../i18n/messages.js';
+	import { useMessages } from '../../i18n/messages.js';
 	import { Clapperboard } from '@lucide/svelte';
 	import {
 		clipEndF,
@@ -8,9 +8,9 @@
 		isTextClip,
 		type MediaClip,
 		type TextClip
-	} from '../../../types/timeline.js';
-	import { PRELOAD_LOOKAHEAD } from '../../../core/playback.js';
-	import { useTimelineEditor } from '../../../core/state.svelte.js';
+	} from '../../types/timeline.js';
+	import { PRELOAD_LOOKAHEAD } from '../../core/playback.js';
+	import { useTimelineEditor } from '../../core/state.svelte.js';
 	import StageMedia from './StageMedia.svelte';
 	import TextOverlayView from './TextOverlayView.svelte';
 

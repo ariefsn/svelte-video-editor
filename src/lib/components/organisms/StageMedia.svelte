@@ -5,10 +5,10 @@
 
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { cn } from '../../../utils.js';
-	import { clipEndF, frameToSec, type MediaClip } from '../../../types/timeline.js';
-	import { useEditorHost } from '../../../core/host.js';
-	import { useTimelineEditor } from '../../../core/state.svelte.js';
+	import { cn } from '../../utils.js';
+	import { clipEndF, frameToSec, type MediaClip } from '../../types/timeline.js';
+	import { useEditorHost } from '../../core/host.js';
+	import { useTimelineEditor } from '../../core/state.svelte.js';
 
 	// One stable instance per staged clip (keyed by clip.id in PreviewStage).
 	// Registration happens in onMount — exactly once per instance — instead of

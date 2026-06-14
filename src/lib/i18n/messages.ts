@@ -12,6 +12,29 @@ export type Messages = {
 	add_crossfade: string;
 	add_text: string;
 	add_track: string;
+	animation: string;
+	anim_on_enter: string;
+	anim_on_exit: string;
+	anim_duration: string;
+	anim_easing: string;
+	anim_none: string;
+	anim_fade: string;
+	anim_slide_left: string;
+	anim_slide_right: string;
+	anim_slide_up: string;
+	anim_slide_down: string;
+	anim_scale: string;
+	anim_zoom: string;
+	anim_bounce: string;
+	anim_pop: string;
+	anim_spin: string;
+	anim_blur: string;
+	anim_wipe: string;
+	anim_flip: string;
+	easing_linear: string;
+	easing_ease_in: string;
+	easing_ease_out: string;
+	easing_ease_in_out: string;
 	align_center: string;
 	align_left: string;
 	align_right: string;
@@ -133,6 +156,29 @@ export const defaultMessages: Messages = {
 	add_crossfade: 'Add crossfade',
 	add_text: 'Text',
 	add_track: 'Track',
+	animation: 'Animation',
+	anim_on_enter: 'On enter',
+	anim_on_exit: 'On exit',
+	anim_duration: 'Duration',
+	anim_easing: 'Easing',
+	anim_none: 'None',
+	anim_fade: 'Fade',
+	anim_slide_left: 'Slide left',
+	anim_slide_right: 'Slide right',
+	anim_slide_up: 'Slide up',
+	anim_slide_down: 'Slide down',
+	anim_scale: 'Scale',
+	anim_zoom: 'Zoom',
+	anim_bounce: 'Bounce',
+	anim_pop: 'Pop',
+	anim_spin: 'Spin',
+	anim_blur: 'Blur',
+	anim_wipe: 'Wipe',
+	anim_flip: 'Flip',
+	easing_linear: 'Linear',
+	easing_ease_in: 'Ease in',
+	easing_ease_out: 'Ease out',
+	easing_ease_in_out: 'Ease in-out',
 	align_center: 'Center',
 	align_left: 'Left',
 	align_right: 'Right',

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { cn } from '../../utils.js';
 	import type { TextClip } from '../../types/timeline.js';
+	import { clipAnimStyle } from '../../core/animation.js';
 	import { useTimelineEditor } from '../../core/state.svelte.js';
 
 	type Props = {
@@ -14,6 +15,7 @@
 	const editor = useTimelineEditor();
 	const selected = $derived(editor.selectedClipIds.has(clip.id));
 	const style = $derived(clip.style);
+	const anim = $derived(clipAnimStyle(clip, editor.playhead, editor.project.fps));
 
 	function hexToRgba(hex: string, opacity: number): string {
 		const r = parseInt(hex.slice(1, 3), 16);
@@ -74,7 +76,10 @@
 	style="
 		left: {style.xPct}%;
 		top: {style.yPct}%;
-		transform: translate(-50%, -50%);
+		transform: translate(-50%, -50%){anim.transform === 'none' ? '' : ` ${anim.transform}`};
+		opacity: {anim.opacity};
+		filter: {anim.filter};
+		clip-path: {anim.clipPath};
 		font-family: {style.fontFamily};
 		font-size: {(stageHeight * style.fontSizePct) / 100}px;
 		font-weight: {style.fontWeight};

@@ -7,6 +7,7 @@
 	import { onMount } from 'svelte';
 	import { cn } from '../../utils.js';
 	import { clipEndF, frameToSec, type MediaClip } from '../../types/timeline.js';
+	import { clipAnimStyle } from '../../core/animation.js';
 	import { useEditorHost } from '../../core/host.js';
 	import { useTimelineEditor } from '../../core/state.svelte.js';
 
@@ -28,6 +29,7 @@
 		editor.playhead >= frameToSec(clip.startF, editor.project.fps) &&
 			editor.playhead < frameToSec(clipEndF(clip), editor.project.fps)
 	);
+	const anim = $derived(clipAnimStyle(clip, editor.playhead, editor.project.fps));
 
 	let src = $state(clip.assetId ? (resolvedUrls.get(clip.assetId) ?? clip.url) : clip.url);
 	let mediaEl = $state<HTMLVideoElement | HTMLAudioElement | null>(null);
@@ -55,7 +57,7 @@
 		bind:this={mediaEl}
 		{src}
 		class={cn('absolute inset-0 h-full w-full object-cover', !visible && 'hidden')}
-		style="z-index: {zIndex};"
+		style="z-index: {zIndex}; opacity: {anim.opacity}; transform: {anim.transform}; filter: {anim.filter}; clip-path: {anim.clipPath};"
 		playsinline
 		preload="auto"
 		muted
@@ -67,7 +69,7 @@
 		{src}
 		alt={clip.name}
 		class={cn('absolute inset-0 h-full w-full object-cover', !visible && 'hidden')}
-		style="z-index: {zIndex};"
+		style="z-index: {zIndex}; opacity: {anim.opacity}; transform: {anim.transform}; filter: {anim.filter}; clip-path: {anim.clipPath};"
 		draggable="false"
 	/>
 {/if}

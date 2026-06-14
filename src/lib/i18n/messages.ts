@@ -21,7 +21,13 @@ export type Messages = {
 	background: string;
 	background_opacity: string;
 	bin_empty: string;
+	bin_filter_all: string;
+	bin_filter_videos: string;
+	bin_filter_images: string;
+	bin_filter_audios: string;
+	bin_filter_empty: string;
 	cancel: string;
+	media_library: string;
 	clips_label: string;
 	close_gap: string;
 	close_gap_all: string;
@@ -78,6 +84,8 @@ export type Messages = {
 	rename_project: string;
 	replace_clamped: string;
 	resize_panes: string;
+	resize_bin: string;
+	resize_inspector: string;
 	ripple_delete: string;
 	roll_edit: string;
 	save: string;
@@ -131,7 +139,13 @@ export const defaultMessages: Messages = {
 	background: 'Background',
 	background_opacity: 'Background opacity',
 	bin_empty: 'Import media, then drag it onto the timeline.',
+	bin_filter_all: 'All',
+	bin_filter_videos: 'Videos',
+	bin_filter_images: 'Images',
+	bin_filter_audios: 'Audio',
+	bin_filter_empty: 'No items of this type.',
 	cancel: 'Cancel',
+	media_library: 'Media',
 	clips_label: 'clips',
 	close_gap: 'Close gap',
 	close_gap_all: 'Close gap (all tracks)',
@@ -193,6 +207,8 @@ export const defaultMessages: Messages = {
 	rename_project: 'Rename project',
 	replace_clamped: 'Replaced — the new media is shorter, so the clip was trimmed',
 	resize_panes: 'Resize timeline panel',
+	resize_bin: 'Resize media panel',
+	resize_inspector: 'Resize options panel',
 	ripple_delete: 'Ripple delete',
 	roll_edit: 'Roll edit',
 	save: 'Save',
@@ -234,7 +250,7 @@ export function resolveMessages(override?: MessagesOverride): Messages {
 	return { ...defaultMessages, ...override };
 }
 
-const KEY = Symbol.for('svelte-timeline-studio-messages');
+const KEY = Symbol.for('svelte-video-editor-messages');
 
 /** A reactive holder so descendants see live `messages` changes (e.g. a host
  * swapping languages at runtime) — setContext only runs once at init, so we

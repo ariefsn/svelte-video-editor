@@ -86,7 +86,7 @@
 	}
 </script>
 
-<svelte:head><title>svelte-timeline-studio — advanced demo</title></svelte:head>
+<svelte:head><title>svelte-video-editor — advanced demo</title></svelte:head>
 
 <DemoToasts />
 
@@ -94,7 +94,7 @@
 	<header class="flex items-center justify-between gap-4">
 		<div class="flex items-center gap-3">
 			<a href="/" class="text-muted-foreground text-xs underline">← docs</a>
-			<h1 class="text-sm font-semibold">svelte-timeline-studio — advanced demo</h1>
+			<h1 class="text-sm font-semibold">svelte-video-editor — advanced demo</h1>
 		</div>
 		<div class="flex items-center gap-3 text-xs">
 			<label class="flex items-center gap-1">
@@ -146,7 +146,9 @@
 								placeholder="Paste media URL…"
 								class="min-w-0 flex-1 rounded border bg-background px-2 py-1 text-xs"
 							/>
-							<button class="rounded bg-primary px-2 py-1 text-xs text-primary-foreground">Add</button>
+							<button class="rounded bg-primary px-2 py-1 text-xs text-primary-foreground"
+								>Add</button
+							>
 						</form>
 					{/snippet}
 

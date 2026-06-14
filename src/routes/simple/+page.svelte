@@ -35,7 +35,7 @@
 	}
 </script>
 
-<svelte:head><title>svelte-timeline-studio — simple demo</title></svelte:head>
+<svelte:head><title>svelte-video-editor — simple demo</title></svelte:head>
 
 <DemoToasts />
 
@@ -43,14 +43,10 @@
 	<header class="flex items-center justify-between gap-4">
 		<div class="flex items-center gap-3">
 			<a href="/" class="text-muted-foreground text-xs underline">← docs</a>
-			<h1 class="text-sm font-semibold">svelte-timeline-studio — simple demo</h1>
+			<h1 class="text-sm font-semibold">svelte-video-editor — simple demo</h1>
 		</div>
 		<div class="flex items-center gap-3 text-xs">
-			<button
-				type="button"
-				class="rounded border px-2 py-1"
-				onclick={() => theme.toggle()}
-			>
+			<button type="button" class="rounded border px-2 py-1" onclick={() => theme.toggle()}>
 				{theme.dark ? '🌙 Dark' : '☀️ Light'}
 			</button>
 			<a href="/advanced" class="text-muted-foreground underline">advanced demo →</a>

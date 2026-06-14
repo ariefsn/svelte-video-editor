@@ -1,21 +1,21 @@
-// svelte-timeline-studio — a host-agnostic Svelte 5 video timeline editor.
+// svelte-video-editor — a host-agnostic Svelte 5 video timeline editor.
 //
 // Browser-only: render under an `{#if browser}` guard in SvelteKit (see README).
-// Import the shipped theme once in your app: `import 'svelte-timeline-studio/app.css'`.
+// Import the shipped theme once in your app: `import 'svelte-video-editor/app.css'`.
 
 // ---- main components ------------------------------------------------------
-export { default as TimelineEditor } from './components/atomic/organisms/TimelineEditor.svelte';
-export { default as ProjectListView } from './components/atomic/organisms/ProjectListView.svelte';
+export { default as TimelineEditor } from './components/organisms/TimelineEditor.svelte';
+export { default as ProjectListView } from './components/organisms/ProjectListView.svelte';
 
 // ---- overridable section components (wrap-a-default pattern) ---------------
-export { default as TimelineToolbar } from './components/atomic/organisms/TimelineToolbar.svelte';
-export { default as AssetBinPanel } from './components/atomic/organisms/AssetBinPanel.svelte';
-export { default as PreviewStage } from './components/atomic/organisms/PreviewStage.svelte';
-export { default as TransportBar } from './components/atomic/organisms/TransportBar.svelte';
-export { default as TimelineTracks } from './components/atomic/organisms/TimelineTracks.svelte';
-export { default as InspectorPanel } from './components/atomic/organisms/InspectorPanel.svelte';
-export { default as ShortcutsFooter } from './components/atomic/organisms/ShortcutsFooter.svelte';
-export { default as ConfirmDialog } from './components/atomic/organisms/ConfirmDialog.svelte';
+export { default as TimelineToolbar } from './components/organisms/TimelineToolbar.svelte';
+export { default as AssetBinPanel } from './components/organisms/AssetBinPanel.svelte';
+export { default as PreviewStage } from './components/organisms/PreviewStage.svelte';
+export { default as TransportBar } from './components/organisms/TransportBar.svelte';
+export { default as TimelineTracks } from './components/organisms/TimelineTracks.svelte';
+export { default as InspectorPanel } from './components/organisms/InspectorPanel.svelte';
+export { default as ShortcutsFooter } from './components/organisms/ShortcutsFooter.svelte';
+export { default as ConfirmDialog } from './components/molecules/ConfirmDialog.svelte';
 
 // ---- host contract & store ------------------------------------------------
 export {

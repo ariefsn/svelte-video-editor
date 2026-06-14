@@ -1,7 +1,7 @@
 @import 'tailwindcss';
 
 /*
- * svelte-timeline-studio theme — a SIMPLE, neutral palette with light + dark
+ * svelte-video-editor theme — a SIMPLE, neutral palette with light + dark
  * support. No brand color (host can override any --ts-* variable to theme it).
  *
  * The editor's utility classes (bg-background, text-muted-foreground, border,

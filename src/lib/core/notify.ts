@@ -7,7 +7,7 @@ export type NotifyFn = (message: string, kind: NotifyKind) => void;
 // `onNotify` prop; components call `notify(message, kind)` instead of importing
 // a toast library. When the host supplies nothing, notifications no-op.
 
-const KEY = Symbol.for('svelte-timeline-studio-notify');
+const KEY = Symbol.for('svelte-video-editor-notify');
 
 export function setNotify(fn: NotifyFn): NotifyFn {
 	return setContext(KEY, fn);

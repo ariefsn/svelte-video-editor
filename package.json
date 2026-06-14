@@ -1,16 +1,16 @@
 {
-	"name": "@ariefsn/svelte-timeline-studio",
+	"name": "@ariefsn/svelte-video-editor",
 	"version": "0.0.1",
 	"description": "A host-agnostic Svelte 5 video timeline editor — clips, tracks, trimming, ripple/roll/slip edits, grouping, linked audio, markers, undo/redo and a real-time preview. Zero design-system dependency.",
 	"author": "Arief Setiyo Nugroho <me@ariefsn.dev>",
 	"license": "MIT",
-	"homepage": "https://github.com/ariefsn/svelte-timeline-studio#readme",
+	"homepage": "https://github.com/ariefsn/svelte-video-editor#readme",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/ariefsn/svelte-timeline-studio.git"
+		"url": "git+https://github.com/ariefsn/svelte-video-editor.git"
 	},
 	"bugs": {
-		"url": "https://github.com/ariefsn/svelte-timeline-studio/issues"
+		"url": "https://github.com/ariefsn/svelte-video-editor/issues"
 	},
 	"scripts": {
 		"dev": "vite dev",

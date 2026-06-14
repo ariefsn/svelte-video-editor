@@ -43,7 +43,7 @@ export type SectionCtx = {
 	onRequestDelete: () => void;
 };
 
-const KEY = Symbol.for('svelte-timeline-studio-host');
+const KEY = Symbol.for('svelte-video-editor-host');
 
 export function setEditorHost(host: EditorHost): EditorHost {
 	return setContext(KEY, host);

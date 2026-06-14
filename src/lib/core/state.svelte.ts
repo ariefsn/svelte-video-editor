@@ -933,7 +933,7 @@ export class TimelineEditorStore {
 	}
 }
 
-const KEY = Symbol.for('svelte-timeline-studio-editor');
+const KEY = Symbol.for('svelte-video-editor-editor');
 
 export function setTimelineEditor(store: TimelineEditorStore): TimelineEditorStore {
 	return setContext(KEY, store);

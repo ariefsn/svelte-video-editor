@@ -22,13 +22,15 @@ export type ConfirmController = {
 	resolveBuiltin(ok: boolean): void;
 };
 
-const KEY = Symbol.for('svelte-timeline-studio-confirm');
+const KEY = Symbol.for('svelte-video-editor-confirm');
 
 /**
  * Create a controller. Pass the host `confirm` callback if any; otherwise the
  * built-in dialog state drives confirmations.
  */
-export function createConfirmController(getHostConfirm: () => ConfirmFn | undefined): ConfirmController {
+export function createConfirmController(
+	getHostConfirm: () => ConfirmFn | undefined
+): ConfirmController {
 	const builtin = $state({ open: false, title: '', message: '' });
 	let pending: ((ok: boolean) => void) | null = null;
 

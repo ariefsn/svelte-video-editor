@@ -64,7 +64,9 @@ function migrateClip(raw: RawRecord, fps: number, fromV1: boolean): TimelineClip
 		durationF: toF(fromV1 ? raw.duration : raw.durationF, 0),
 		groupId: typeof raw.groupId === 'string' ? raw.groupId : null,
 		locked: bool(raw.locked, false),
-		name: str(raw.name, '')
+		name: str(raw.name, ''),
+		// Optional enter/exit transitions; absent = none. Plain JSON, kept as-is.
+		animation: (raw.animation as TimelineClip['animation']) ?? undefined
 	};
 
 	if (raw.kind === 'text') {

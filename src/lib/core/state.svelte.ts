@@ -14,6 +14,7 @@ import {
 	ZOOM_MAX,
 	ZOOM_MIN,
 	type BinItem,
+	type ClipTransition,
 	type MediaClip,
 	type TextClip,
 	type TextClipStyle,
@@ -666,6 +667,25 @@ export class TimelineEditorStore {
 			const clamped = Math.min(Math.max(0, Math.round(frames)), clip.durationF);
 			if (edge === 'in') clip.fadeInF = clamped;
 			else clip.fadeOutF = clamped;
+		});
+	}
+
+	/** Set or clear one side of a clip's enter/exit transition (media or text).
+	 * Pass `null` to remove that side; clearing both drops `animation` entirely. */
+	setClipAnimation(clipId: string, side: 'in' | 'out', transition: ClipTransition | null): void {
+		const clip = this.#clip(clipId);
+		if (!clip || isClipLocked(this.project, clip)) return;
+		this.#mutate(() => {
+			const anim = { ...(clip.animation ?? {}) };
+			if (transition) {
+				anim[side] = {
+					...transition,
+					durationF: Math.min(Math.max(1, Math.round(transition.durationF)), clip.durationF)
+				};
+			} else {
+				delete anim[side];
+			}
+			clip.animation = anim.in || anim.out ? anim : undefined;
 		});
 	}
 

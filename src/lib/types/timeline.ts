@@ -56,6 +56,59 @@ export const ZOOM_DEFAULT = 50;
 /** Minimum clip length, in frames. */
 export const CLIP_MIN_FRAMES = 1;
 
+// ---- clip enter/exit transitions -----------------------------------------
+
+export type AnimPreset =
+	| 'fade'
+	| 'slide-left'
+	| 'slide-right'
+	| 'slide-up'
+	| 'slide-down'
+	| 'scale' // grow 0.85 → 1
+	| 'zoom' // punch 1.15 → 1
+	| 'bounce'
+	| 'pop' // overshoot 0.6 → 1.1 → 1
+	| 'spin' // rotate + fade
+	| 'blur' // blur(8px) → 0 + fade
+	| 'wipe' // clip-path reveal
+	| 'flip'; // rotateY 90° → 0
+
+export type Easing = 'linear' | 'ease-in' | 'ease-out' | 'ease-in-out';
+
+export const ANIM_PRESETS: readonly AnimPreset[] = [
+	'fade',
+	'slide-left',
+	'slide-right',
+	'slide-up',
+	'slide-down',
+	'scale',
+	'zoom',
+	'bounce',
+	'pop',
+	'spin',
+	'blur',
+	'wipe',
+	'flip'
+];
+
+export const EASINGS: readonly Easing[] = ['linear', 'ease-in', 'ease-out', 'ease-in-out'];
+
+/** One side of a clip transition. */
+export type ClipTransition = {
+	preset: AnimPreset;
+	/** Animation length in frames; clamped to the clip's duration. */
+	durationF: number;
+	easing: Easing;
+};
+
+/** Optional enter/exit transitions on a clip. Either side may be absent. */
+export type ClipAnimation = { in?: ClipTransition; out?: ClipTransition };
+
+/** Sensible default when a transition side is first enabled (~0.5s @30fps). */
+export function defaultTransition(): ClipTransition {
+	return { preset: 'fade', durationF: 15, easing: 'ease-out' };
+}
+
 type ClipBase = {
 	id: string;
 	trackId: string;
@@ -66,6 +119,8 @@ type ClipBase = {
 	groupId: string | null;
 	locked: boolean;
 	name: string;
+	/** Optional enter/exit transitions, applied in the preview/compositor. */
+	animation?: ClipAnimation;
 };
 
 export type MediaClipKind = 'video' | 'image' | 'audio';

@@ -4,8 +4,7 @@
 	import { Tooltip } from '../atoms/index.js';
 	import ConfirmDialog from '../molecules/ConfirmDialog.svelte';
 	import Sheet from '../molecules/Sheet.svelte';
-	import { createIsMobile } from '../../core/viewport.svelte.js';
-	import { FolderOpen } from '@lucide/svelte';
+	import { createIsMobile, setViewport } from '../../core/viewport.svelte.js';
 	import { migrateProject } from '../../core/migration.js';
 	import { setEditorHost, type EditorHost, type SectionCtx } from '../../core/host.js';
 	import type { OpFailReason } from '../../core/ops.js';
@@ -69,7 +68,10 @@
 		binImport?: Snippet<[{ addItems: (items: BinItem[]) => void }]>;
 		/** Optional section overrides. Each replaces the corresponding default
 		 * section (including its wrapper element) and receives the editor
-		 * context as its argument; omitted sections render the built-ins. */
+		 * context as its argument; omitted sections render the built-ins.
+		 * On mobile (<768px) the `assetBin` and `inspector` overrides render
+		 * inside a bottom sheet instead of a side column, so avoid fixed widths
+		 * in those overrides. */
 		toolbar?: Snippet<[SectionCtx]>;
 		assetBin?: Snippet<[SectionCtx]>;
 		preview?: Snippet<[SectionCtx]>;
@@ -173,18 +175,35 @@
 	// and the first render (desktop-first), so the sidebars are the default.
 	const viewport = createIsMobile();
 	const isMobile = $derived(viewport.current);
+	// Share with the section components (toolbar, tracks, footer) via context.
+	setViewport({
+		get isMobile() {
+			return isMobile;
+		}
+	});
 	let binSheetOpen = $state(false);
 	let inspectorSheetOpen = $state(false);
 
-	// On mobile, auto-open the inspector sheet when the active clip *changes*
-	// (not on every reactive read) so a manual close isn't immediately undone.
+	// Close the inspector sheet when the selection is cleared. (Opening is NOT
+	// tied to selection — selecting a clip is also the start of a drag/trim, so
+	// auto-opening here would block direct manipulation on mobile.)
 	let lastActiveClipId: string | null = null;
 	$effect(() => {
 		const id = editor.activeClipId;
 		if (id !== lastActiveClipId) {
 			lastActiveClipId = id;
-			if (isMobile && id) inspectorSheetOpen = true;
 			if (!id) inspectorSheetOpen = false;
+		}
+	});
+
+	// Open the inspector sheet on an explicit request — a tap (not a drag) on a
+	// clip bumps `inspectorRequestSeq`. Mobile only; desktop has the side panel.
+	let lastInspectorSeq = editor.inspectorRequestSeq;
+	$effect(() => {
+		const seq = editor.inspectorRequestSeq;
+		if (seq !== lastInspectorSeq) {
+			lastInspectorSeq = seq;
+			if (isMobile && editor.activeClip) inspectorSheetOpen = true;
 		}
 	});
 
@@ -448,39 +467,26 @@
 	{/if}
 
 	<div class="flex min-h-0 flex-1" bind:clientWidth={containerW}>
-		{#if assetBin}
-			{@render assetBin(sectionCtx)}
-		{:else if !isMobile}
-			<aside class="shrink-0 border-r" style="width: {binWpx}px;">
-				<AssetBinPanel {binImport} />
-			</aside>
-			{@render colDivider({
-				label: t.resize_bin,
-				tipSide: 'right',
-				down: onBinResizeDown,
-				move: onBinResizeMove,
-				up: onBinResizeUp,
-				keydown: onBinResizeKeydown
-			})}
+		{#if !isMobile}
+			<!-- Desktop: bin is an inline side column (override or built-in). On
+			     mobile it moves into a bottom sheet (rendered below). -->
+			{#if assetBin}
+				{@render assetBin(sectionCtx)}
+			{:else}
+				<aside class="shrink-0 border-r" style="width: {binWpx}px;">
+					<AssetBinPanel {binImport} />
+				</aside>
+				{@render colDivider({
+					label: t.resize_bin,
+					tipSide: 'right',
+					down: onBinResizeDown,
+					move: onBinResizeMove,
+					up: onBinResizeUp,
+					keydown: onBinResizeKeydown
+				})}
+			{/if}
 		{/if}
 		<main class="flex min-w-0 flex-1 flex-col">
-			{#if isMobile && !assetBin}
-				<div class="flex shrink-0 items-center gap-2 border-b px-2 py-1.5">
-					<Tooltip text={t.media_library}>
-						{#snippet child({ props })}
-							<button
-								{...props}
-								type="button"
-								class="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-medium text-foreground hover:bg-accent"
-								onclick={() => (binSheetOpen = true)}
-							>
-								<FolderOpen class="size-4" />
-								{t.media_library}
-							</button>
-						{/snippet}
-					</Tooltip>
-				</div>
-			{/if}
 			{#if preview}
 				{@render preview(sectionCtx)}
 			{:else}
@@ -494,20 +500,24 @@
 				<TransportBar />
 			{/if}
 		</main>
-		{#if inspector}
-			{@render inspector(sectionCtx)}
-		{:else if editor.activeClip && !isMobile}
-			{@render colDivider({
-				label: t.resize_inspector,
-				tipSide: 'left',
-				down: onInspectorResizeDown,
-				move: onInspectorResizeMove,
-				up: onInspectorResizeUp,
-				keydown: onInspectorResizeKeydown
-			})}
-			<aside class="shrink-0 border-l" style="width: {inspectorWpx}px;">
-				<InspectorPanel onRequestDelete={requestDeleteSelected} />
-			</aside>
+		{#if !isMobile}
+			<!-- Desktop: inspector is an inline side column (override or built-in).
+			     On mobile it moves into a bottom sheet (rendered below). -->
+			{#if inspector}
+				{@render inspector(sectionCtx)}
+			{:else if editor.activeClip}
+				{@render colDivider({
+					label: t.resize_inspector,
+					tipSide: 'left',
+					down: onInspectorResizeDown,
+					move: onInspectorResizeMove,
+					up: onInspectorResizeUp,
+					keydown: onInspectorResizeKeydown
+				})}
+				<aside class="shrink-0 border-l" style="width: {inspectorWpx}px;">
+					<InspectorPanel onRequestDelete={requestDeleteSelected} />
+				</aside>
+			{/if}
 		{/if}
 	</div>
 
@@ -535,33 +545,49 @@
 		{#if tracks}
 			{@render tracks(sectionCtx)}
 		{:else}
-			<TimelineTracks onRequestDelete={requestDeleteSelected} />
+			<!-- On mobile the bin has no sidebar, so the tracks' zoom row hosts a
+			     Media button to open the bin sheet. -->
+			<TimelineTracks
+				onRequestDelete={requestDeleteSelected}
+				onOpenBin={isMobile ? () => (binSheetOpen = true) : undefined}
+			/>
 		{/if}
 	</div>
 
 	{#if shortcutsFooter}
 		{@render shortcutsFooter(sectionCtx)}
-	{:else}
+	{:else if !isMobile}
+		<!-- Keyboard hints are desktop-only; on mobile the transport bar shows an
+		     info button that opens them in a sheet instead. -->
 		<ShortcutsFooter />
 	{/if}
 </div>
 
-<!-- Mobile-only: built-in bin & inspector move into bottom sheets. Section
-     overrides keep rendering inline in the layout above, so the sheets only
-     host the defaults. -->
-{#if isMobile && !assetBin}
+<!-- Mobile-only: bin & inspector move into bottom sheets — hosting the section
+     override when provided, otherwise the built-in. (Override snippets render
+     inline on desktop and inside these sheets on mobile, so a host override
+     should avoid fixed widths.) -->
+{#if isMobile}
 	<Sheet bind:open={binSheetOpen}>
 		{#snippet title()}{t.media_library}{/snippet}
 		<div class="h-[60vh]">
-			<AssetBinPanel {binImport} />
+			{#if assetBin}
+				{@render assetBin(sectionCtx)}
+			{:else}
+				<AssetBinPanel {binImport} />
+			{/if}
 		</div>
 	</Sheet>
 {/if}
 
-{#if isMobile && !inspector && editor.activeClip}
+{#if isMobile && editor.activeClip}
 	<Sheet bind:open={inspectorSheetOpen}>
 		<div class="h-[60vh]">
-			<InspectorPanel onRequestDelete={requestDeleteSelected} />
+			{#if inspector}
+				{@render inspector(sectionCtx)}
+			{:else}
+				<InspectorPanel onRequestDelete={requestDeleteSelected} />
+			{/if}
 		</div>
 	</Sheet>
 {/if}

@@ -33,8 +33,12 @@
 	} from '../../core/geometry.js';
 	import { linkedPartner, isClipLocked } from '../../core/ops.js';
 	import { useTimelineEditor } from '../../core/state.svelte.js';
+	import { useViewport } from '../../core/viewport.svelte.js';
+	import { SlidersHorizontal } from '@lucide/svelte';
 
 	const t = useMessages();
+	const viewport = useViewport();
+	const isMobile = $derived(viewport.isMobile);
 
 	type Props = {
 		clip: TimelineClip;
@@ -376,6 +380,16 @@
 		</div>
 	{/snippet}
 	{#snippet content({ item, separator })}
+		{#if isMobile}
+			<!-- Mobile only: the inspector has no sidebar, so surface it here. On
+			     desktop the inspector panel is always visible — item is hidden. -->
+			{#snippet optionsLabel()}<SlidersHorizontal class="size-4" />{t.options}{/snippet}
+			{@render item({
+				children: optionsLabel,
+				onclick: () => (editor.selectClip(clip.id, false), editor.requestInspector())
+			})}
+			{@render separator()}
+		{/if}
 		{#snippet cutLabel()}<Scissors class="size-4" />{t.cut}{/snippet}
 		{@render item({
 			children: cutLabel,

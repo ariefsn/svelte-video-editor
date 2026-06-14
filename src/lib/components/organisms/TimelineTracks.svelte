@@ -3,7 +3,7 @@
 	import { onDestroy } from 'svelte';
 	import { useNotify } from '../../core/notify.js';
 	import { Slider, Tooltip } from '../atoms/index.js';
-	import { ZoomIn, ZoomOut } from '@lucide/svelte';
+	import { FolderOpen, ZoomIn, ZoomOut } from '@lucide/svelte';
 	import { clipEndF, ZOOM_MAX, ZOOM_MIN, type TimelineClip } from '../../types/timeline.js';
 	import {
 		frameToPx,
@@ -14,6 +14,7 @@
 		TRACK_HEADER_W
 	} from '../../core/geometry.js';
 	import { useTimelineEditor } from '../../core/state.svelte.js';
+	import { useViewport } from '../../core/viewport.svelte.js';
 	import EditorIconButton from './EditorIconButton.svelte';
 	import TimelineMinimap from './TimelineMinimap.svelte';
 	import TimelineRuler from './TimelineRuler.svelte';
@@ -21,12 +22,17 @@
 
 	const t = useMessages();
 	const notify = useNotify();
+	const viewport = useViewport();
+	const isMobile = $derived(viewport.isMobile);
 
 	type Props = {
 		onRequestDelete: () => void;
+		/** Mobile only — when set, a "Media" button renders by the zoom controls
+		 * to open the bin sheet (the bin has no sidebar on mobile). */
+		onOpenBin?: () => void;
 	};
 
-	let { onRequestDelete }: Props = $props();
+	let { onRequestDelete, onOpenBin }: Props = $props();
 
 	const editor = useTimelineEditor();
 	const fps = $derived(editor.project.fps);
@@ -224,24 +230,33 @@
 			/>
 		</div>
 		<div class="flex shrink-0 items-center gap-1">
+			{#if isMobile && onOpenBin}
+				<EditorIconButton label={t.media_library} onclick={onOpenBin}>
+					<FolderOpen class="size-3.5" />
+				</EditorIconButton>
+				<div class="mx-0.5 h-5 w-px bg-border"></div>
+			{/if}
 			<EditorIconButton label={t.zoom_out} onclick={() => editor.setZoom(zoom / 1.25)}>
 				<ZoomOut class="size-3.5" />
 			</EditorIconButton>
-			<Tooltip text={t.zoom}>
-				{#snippet child({ props })}
-					<div {...props}>
-						<Slider
-							value={zoom}
-							min={ZOOM_MIN}
-							max={ZOOM_MAX}
-							step={1}
-							class="w-32"
-							ariaLabel={t.zoom}
-							onchange={(v) => editor.setZoom(v)}
-						/>
-					</div>
-				{/snippet}
-			</Tooltip>
+			<!-- The slider is fiddly on touch; mobile keeps just the −/+ buttons. -->
+			{#if !isMobile}
+				<Tooltip text={t.zoom}>
+					{#snippet child({ props })}
+						<div {...props}>
+							<Slider
+								value={zoom}
+								min={ZOOM_MIN}
+								max={ZOOM_MAX}
+								step={1}
+								class="w-32"
+								ariaLabel={t.zoom}
+								onchange={(v) => editor.setZoom(v)}
+							/>
+						</div>
+					{/snippet}
+				</Tooltip>
+			{/if}
 			<EditorIconButton label={t.zoom_in} onclick={() => editor.setZoom(zoom * 1.25)}>
 				<ZoomIn class="size-3.5" />
 			</EditorIconButton>

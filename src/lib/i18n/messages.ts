@@ -60,6 +60,7 @@ export type Messages = {
 	loop_range: string;
 	marker: string;
 	marker_label: string;
+	more_options: string;
 	mute: string;
 	new_project: string;
 	no_gap_here: string;
@@ -69,6 +70,7 @@ export type Messages = {
 	op_blocked_no_audio: string;
 	op_blocked_no_target: string;
 	op_blocked_occupied: string;
+	options: string;
 	pause: string;
 	play: string;
 	position_hint: string;
@@ -100,6 +102,7 @@ export type Messages = {
 	shortcut_slip: string;
 	shortcut_split: string;
 	shortcut_ungroup: string;
+	shortcuts_title: string;
 	show: string;
 	snap: string;
 	solo: string;
@@ -181,6 +184,7 @@ export const defaultMessages: Messages = {
 	loop_range: 'Loop in/out range',
 	marker: 'Marker',
 	marker_label: 'Marker label',
+	more_options: 'More',
 	mute: 'Mute',
 	new_project: 'New project',
 	no_gap_here: 'No gap here',
@@ -190,6 +194,7 @@ export const defaultMessages: Messages = {
 	op_blocked_no_audio: 'This clip has no audio to detach',
 	op_blocked_no_target: 'No suitable track found',
 	op_blocked_occupied: 'Not enough room — something is in the way',
+	options: 'Options',
 	pause: 'Pause',
 	play: 'Play',
 	position_hint: 'Tip: drag the text directly on the preview to position it.',
@@ -223,6 +228,7 @@ export const defaultMessages: Messages = {
 	shortcut_slip: 'Slip',
 	shortcut_split: 'Split / all tracks',
 	shortcut_ungroup: 'Ungroup',
+	shortcuts_title: 'Keyboard shortcuts',
 	show: 'Show',
 	snap: 'Snapping',
 	solo: 'Solo',

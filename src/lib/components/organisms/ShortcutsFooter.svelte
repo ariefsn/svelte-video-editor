@@ -1,23 +1,32 @@
+<script lang="ts" module>
+	import type { Messages } from '../../i18n/messages.js';
+
+	/** Single source of truth for the shortcut list — reused by the mobile
+	 * shortcuts sheet (TransportBar) so the two never drift. */
+	export function shortcutHints(t: Messages): { keys: string; label: string }[] {
+		return [
+			{ keys: 'Space', label: t.shortcut_play_pause },
+			{ keys: '⌘Click', label: t.shortcut_multi_select },
+			{ keys: 'S / ⇧S', label: t.shortcut_split },
+			{ keys: '⌘G / ⌘⇧G', label: t.shortcut_group },
+			{ keys: '⌘C/X/V/D', label: t.shortcut_clipboard },
+			{ keys: '⇧⌫', label: t.ripple_delete },
+			{ keys: 'I / O', label: t.shortcut_range },
+			{ keys: 'M', label: t.marker },
+			{ keys: '⌥L', label: t.unlink },
+			{ keys: '⌥drag', label: t.shortcut_alt_drag },
+			{ keys: '⌘drop', label: t.shortcut_insert },
+			{ keys: '⌘⌥drag', label: t.shortcut_slip },
+			{ keys: '⇧drag', label: t.shortcut_no_snap }
+		];
+	}
+</script>
+
 <script lang="ts">
 	import { useMessages } from '../../i18n/messages.js';
 
 	const t = useMessages();
-
-	const hints = $derived([
-		{ keys: 'Space', label: t.shortcut_play_pause },
-		{ keys: '⌘Click', label: t.shortcut_multi_select },
-		{ keys: 'S / ⇧S', label: t.shortcut_split },
-		{ keys: '⌘G / ⌘⇧G', label: t.shortcut_group },
-		{ keys: '⌘C/X/V/D', label: t.shortcut_clipboard },
-		{ keys: '⇧⌫', label: t.ripple_delete },
-		{ keys: 'I / O', label: t.shortcut_range },
-		{ keys: 'M', label: t.marker },
-		{ keys: '⌥L', label: t.unlink },
-		{ keys: '⌥drag', label: t.shortcut_alt_drag },
-		{ keys: '⌘drop', label: t.shortcut_insert },
-		{ keys: '⌘⌥drag', label: t.shortcut_slip },
-		{ keys: '⇧drag', label: t.shortcut_no_snap }
-	]);
+	const hints = $derived(shortcutHints(t));
 </script>
 
 <div

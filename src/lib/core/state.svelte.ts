@@ -95,6 +95,10 @@ export class TimelineEditorStore {
 	activeClipId = $state<string | null>(null);
 	selectedGap = $state<Gap | null>(null);
 	dragState = $state<DragState | null>(null);
+	/** Bumped when the user explicitly asks to see a clip's options (e.g. taps a
+	 * clip without dragging on mobile). The host editor watches this to open the
+	 * inspector sheet — decoupled from selection so a drag doesn't trigger it. */
+	inspectorRequestSeq = $state(0);
 	canUndo = $state(false);
 	canRedo = $state(false);
 
@@ -220,6 +224,11 @@ export class TimelineEditorStore {
 		this.selectedClipIds.clear();
 		this.activeClipId = null;
 		this.selectedGap = null;
+	}
+
+	/** Signal that the active clip's options should be shown (mobile sheet). */
+	requestInspector(): void {
+		this.inspectorRequestSeq++;
 	}
 
 	// ---- track mutations -------------------------------------------------

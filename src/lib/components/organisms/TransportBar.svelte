@@ -1,14 +1,22 @@
 <script lang="ts">
 	import { useMessages } from '../../i18n/messages.js';
-	import { LocateFixed, Pause, Play, Repeat } from '@lucide/svelte';
+	import { Keyboard, LocateFixed, Pause, Play, Repeat } from '@lucide/svelte';
 	import { formatTimecode } from '../../core/geometry.js';
 	import { useTimelineEditor } from '../../core/state.svelte.js';
+	import { useViewport } from '../../core/viewport.svelte.js';
+	import Sheet from '../molecules/Sheet.svelte';
 	import EditorIconButton from './EditorIconButton.svelte';
+	import { shortcutHints } from './ShortcutsFooter.svelte';
 
 	const t = useMessages();
 
 	const editor = useTimelineEditor();
 	const fps = $derived(editor.project.fps);
+
+	const viewport = useViewport();
+	const isMobile = $derived(viewport.isMobile);
+	const hints = $derived(shortcutHints(t));
+	let shortcutsOpen = $state(false);
 </script>
 
 <div class="flex items-center justify-center gap-2 border-t px-2 py-1">
@@ -41,4 +49,25 @@
 	>
 		<LocateFixed class="size-3.5" />
 	</EditorIconButton>
+	{#if isMobile}
+		<EditorIconButton label={t.shortcuts_title} onclick={() => (shortcutsOpen = true)}>
+			<Keyboard class="size-3.5" />
+		</EditorIconButton>
+	{/if}
 </div>
+
+{#if isMobile}
+	<Sheet bind:open={shortcutsOpen}>
+		{#snippet title()}{t.shortcuts_title}{/snippet}
+		<ul class="flex flex-col gap-1.5 text-sm">
+			{#each hints as hint (hint.keys)}
+				<li class="flex items-center justify-between gap-3">
+					<span class="text-muted-foreground">{hint.label}</span>
+					<kbd class="shrink-0 rounded border bg-muted px-1.5 py-0.5 font-sans text-xs">
+						{hint.keys}
+					</kbd>
+				</li>
+			{/each}
+		</ul>
+	</Sheet>
+{/if}

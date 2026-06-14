@@ -2,6 +2,7 @@
 	import { useMessages } from '../../i18n/messages.js';
 	import { Button, Select, Tooltip } from '../atoms/index.js';
 	import { ButtonGroup } from '../molecules/index.js';
+	import Sheet from '../molecules/Sheet.svelte';
 	import {
 		ArrowLeft,
 		Download,
@@ -9,6 +10,7 @@
 		Group,
 		Lock,
 		Magnet,
+		MoreHorizontal,
 		Pencil,
 		Plus,
 		Redo2,
@@ -21,10 +23,13 @@
 	import { FPS_OPTIONS, type TimelineAspectRatio, type TimelineFps } from '../../types/timeline.js';
 	import { useEditorHost } from '../../core/host.js';
 	import { useTimelineEditor } from '../../core/state.svelte.js';
+	import { useViewport } from '../../core/viewport.svelte.js';
 	import EditorIconButton from './EditorIconButton.svelte';
 	import RenameProjectDialog from '../molecules/RenameProjectDialog.svelte';
 
 	const t = useMessages();
+	const viewport = useViewport();
+	const isMobile = $derived(viewport.isMobile);
 
 	type Props = {
 		/** Optional — the back button only renders when provided. */
@@ -47,6 +52,7 @@
 	const canExport = $derived(host.can('export'));
 
 	let renameOpen = $state(false);
+	let moreOpen = $state(false);
 
 	// Aspect ratio and fps are project-level framing decisions — locked once
 	// clips are placed.
@@ -80,38 +86,8 @@
 	}
 </script>
 
-<div class="flex items-center gap-1 overflow-x-auto border-b px-2 py-1.5">
-	{#if onBack}
-		<EditorIconButton label={t.back_to_projects} onclick={onBack}>
-			<ArrowLeft class="size-4" />
-		</EditorIconButton>
-	{/if}
-	<Tooltip text={t.rename_project}>
-		{#snippet child({ props })}
-			<Button
-				{...props}
-				variant="ghost"
-				size="sm"
-				class="max-w-44 gap-1.5 truncate text-sm font-medium"
-				onclick={() => (renameOpen = true)}
-			>
-				<span class="truncate">{editor.project.name}</span>
-				<Pencil class="size-3 shrink-0 opacity-60" />
-			</Button>
-		{/snippet}
-	</Tooltip>
-
-	<div class="mx-1 h-5 w-px bg-border"></div>
-
-	<EditorIconButton label={t.undo} disabled={!editor.canUndo} onclick={() => editor.undo()}>
-		<Undo2 class="size-4" />
-	</EditorIconButton>
-	<EditorIconButton label={t.redo} disabled={!editor.canRedo} onclick={() => editor.redo()}>
-		<Redo2 class="size-4" />
-	</EditorIconButton>
-
-	<div class="mx-1 h-5 w-px bg-border"></div>
-
+<!-- Secondary edit actions — inline on desktop, inside the ⋯ popover on mobile. -->
+{#snippet editActions()}
 	<EditorIconButton
 		label={t.split}
 		disabled={editor.durationF <= 0}
@@ -150,35 +126,27 @@
 	>
 		<Magnet class="size-4" />
 	</EditorIconButton>
+{/snippet}
 
-	<div class="mx-1 h-5 w-px bg-border"></div>
-
-	<Button variant="ghost" size="sm" class="gap-1" onclick={addText}>
-		<Type class="size-4" />
-		{t.add_text}
-	</Button>
-
-	<Button variant="ghost" size="sm" class="gap-1" onclick={addTrack}>
-		<Plus class="size-4" />
-		{t.add_track}
-	</Button>
-
-	<div class="ml-auto flex items-center gap-2">
-		{#if projectLocked}
-			<Tooltip text={t.project_settings_locked_hint}>
-				{#snippet child({ props })}
-					<div {...props} class="flex items-center gap-2">
-						<Select items={fpsItems} value={String(editor.project.fps)} disabled class="h-8 w-24" />
-						<ButtonGroup
-							value={editor.project.aspectRatio}
-							options={aspectOptions}
-							size="sm"
-							onValueChange={(v) => editor.setAspectRatio(v as TimelineAspectRatio)}
-						/>
-					</div>
-				{/snippet}
-			</Tooltip>
-		{:else}
+<!-- Framing controls (fps + aspect ratio). `stacked` lays them out vertically
+     for the mobile popover. -->
+{#snippet framingControls(stacked: boolean)}
+	{#if projectLocked}
+		<Tooltip text={t.project_settings_locked_hint}>
+			{#snippet child({ props })}
+				<div {...props} class={stacked ? 'flex flex-col gap-2' : 'flex items-center gap-2'}>
+					<Select items={fpsItems} value={String(editor.project.fps)} disabled class="h-8 w-24" />
+					<ButtonGroup
+						value={editor.project.aspectRatio}
+						options={aspectOptions}
+						size="sm"
+						onValueChange={(v) => editor.setAspectRatio(v as TimelineAspectRatio)}
+					/>
+				</div>
+			{/snippet}
+		</Tooltip>
+	{:else}
+		<div class={stacked ? 'flex flex-col gap-2' : 'contents'}>
 			<Tooltip text={t.fps_label}>
 				{#snippet child({ props })}
 					<div {...props}>
@@ -203,6 +171,60 @@
 					</div>
 				{/snippet}
 			</Tooltip>
+		</div>
+	{/if}
+{/snippet}
+
+<div class="flex items-center gap-1 overflow-x-auto border-b px-2 py-1.5">
+	{#if onBack}
+		<EditorIconButton label={t.back_to_projects} onclick={onBack}>
+			<ArrowLeft class="size-4" />
+		</EditorIconButton>
+	{/if}
+	<Tooltip text={t.rename_project}>
+		{#snippet child({ props })}
+			<Button
+				{...props}
+				variant="ghost"
+				size="sm"
+				class="max-w-44 gap-1.5 truncate text-sm font-medium"
+				onclick={() => (renameOpen = true)}
+			>
+				<span class="truncate">{editor.project.name}</span>
+				<Pencil class="size-3 shrink-0 opacity-60" />
+			</Button>
+		{/snippet}
+	</Tooltip>
+
+	<div class="mx-1 h-5 w-px bg-border"></div>
+
+	<EditorIconButton label={t.undo} disabled={!editor.canUndo} onclick={() => editor.undo()}>
+		<Undo2 class="size-4" />
+	</EditorIconButton>
+	<EditorIconButton label={t.redo} disabled={!editor.canRedo} onclick={() => editor.redo()}>
+		<Redo2 class="size-4" />
+	</EditorIconButton>
+
+	{#if !isMobile}
+		<div class="mx-1 h-5 w-px bg-border"></div>
+		{@render editActions()}
+	{/if}
+
+	<div class="mx-1 h-5 w-px bg-border"></div>
+
+	<!-- Add-text / add-track stay primary; icon-only on mobile to save room. -->
+	<Button variant="ghost" size="sm" class="gap-1" onclick={addText}>
+		<Type class="size-4" />
+		{#if !isMobile}{t.add_text}{/if}
+	</Button>
+	<Button variant="ghost" size="sm" class="gap-1" onclick={addTrack}>
+		<Plus class="size-4" />
+		{#if !isMobile}{t.add_track}{/if}
+	</Button>
+
+	<div class="ml-auto flex items-center gap-2">
+		{#if !isMobile}
+			{@render framingControls(false)}
 		{/if}
 
 		<!-- Gated actions render locked, never hidden. -->
@@ -220,12 +242,33 @@
 					{:else}
 						<Lock class="size-4" />
 					{/if}
-					{t.export}
+					{#if !isMobile}{t.export}{/if}
 				</Button>
 			{/snippet}
 		</Tooltip>
+
+		{#if isMobile}
+			<EditorIconButton label={t.more_options} onclick={() => (moreOpen = true)}>
+				<MoreHorizontal class="size-4" />
+			</EditorIconButton>
+		{/if}
 	</div>
 </div>
+
+<!-- Mobile overflow: a bottom sheet (fixed-position, never clipped by the
+     editor's overflow-hidden root — unlike a popover). -->
+{#if isMobile}
+	<Sheet bind:open={moreOpen}>
+		{#snippet title()}{t.more_options}{/snippet}
+		<div class="flex flex-col gap-4">
+			<div class="flex flex-wrap items-center gap-1">
+				{@render editActions()}
+			</div>
+			<div class="h-px bg-border"></div>
+			{@render framingControls(true)}
+		</div>
+	</Sheet>
+{/if}
 
 <RenameProjectDialog
 	bind:open={renameOpen}

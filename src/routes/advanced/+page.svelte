@@ -153,8 +153,9 @@
 					{/snippet}
 
 					{#snippet inspector(ctx: SectionCtx)}
-						<!-- Wrap the default inspector + add a custom widget. -->
-						<aside class="flex w-64 shrink-0 flex-col border-l lg:w-72">
+						<!-- Wrap the default inspector + add a custom widget. No fixed width
+						     below `md` so it fills the bottom sheet on mobile. -->
+						<aside class="flex h-full flex-col border-l md:w-64 md:shrink-0 lg:w-72">
 							{#if ctx.editor.activeClip}
 								<InspectorPanel onRequestDelete={ctx.onRequestDelete} />
 							{/if}

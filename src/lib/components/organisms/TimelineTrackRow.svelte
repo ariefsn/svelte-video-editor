@@ -312,6 +312,9 @@
 				ondrop={onDrop}
 				onpointerdown={onLanePointerDown}
 				oncontextmenu={(e) => {
+					// Only the lane itself opens the lane menu — a contextmenu on a clip
+					// child bubbles here, but the clip's own menu already handled it.
+					if (e.target !== e.currentTarget) return;
 					onLaneContextMenu(e);
 					props.oncontextmenu(e);
 				}}

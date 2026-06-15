@@ -25,6 +25,7 @@
 	import { useTimelineEditor } from '../../core/state.svelte.js';
 	import { useViewport } from '../../core/viewport.svelte.js';
 	import EditorIconButton from './EditorIconButton.svelte';
+	import BackgroundPicker from './BackgroundPicker.svelte';
 	import RenameProjectDialog from '../molecules/RenameProjectDialog.svelte';
 
 	const t = useMessages();
@@ -67,7 +68,7 @@
 	const fpsItems = FPS_OPTIONS.map((fps) => ({ label: `${fps} fps`, value: String(fps) }));
 
 	function addTrack() {
-		editor.addTrack(`${t.add_track} ${editor.project.tracks.length + 1}`);
+		editor.addTrack(`${t.addTrack} ${editor.project.tracks.length + 1}`);
 	}
 
 	function addText() {
@@ -77,7 +78,7 @@
 			addTrack();
 			track = editor.project.tracks.at(-1);
 		}
-		if (track) editor.addTextClip(track.id, editor.playheadF, t.default_text);
+		if (track) editor.addTextClip(track.id, editor.playheadF, t.defaultText);
 	}
 
 	function exportProject() {
@@ -106,14 +107,14 @@
 		<Ungroup class="size-4" />
 	</EditorIconButton>
 	<EditorIconButton
-		label={t.delete_clips}
+		label={t.deleteClips}
 		disabled={selectedClips.length === 0}
 		onclick={onRequestDelete}
 	>
 		<Trash2 class="size-4" />
 	</EditorIconButton>
 	<EditorIconButton
-		label={t.ripple_delete}
+		label={t.rippleDelete}
 		disabled={selectedClips.length === 0}
 		onclick={() => editor.rippleDeleteSelected()}
 	>
@@ -132,22 +133,32 @@
      for the mobile popover. -->
 {#snippet framingControls(stacked: boolean)}
 	{#if projectLocked}
-		<Tooltip text={t.project_settings_locked_hint}>
-			{#snippet child({ props })}
-				<div {...props} class={stacked ? 'flex flex-col gap-2' : 'flex items-center gap-2'}>
-					<Select items={fpsItems} value={String(editor.project.fps)} disabled class="h-8 w-24" />
-					<ButtonGroup
-						value={editor.project.aspectRatio}
-						options={aspectOptions}
-						size="sm"
-						onValueChange={(v) => editor.setAspectRatio(v as TimelineAspectRatio)}
-					/>
-				</div>
-			{/snippet}
-		</Tooltip>
+		<div class={stacked ? 'flex flex-col gap-2' : 'flex items-center gap-2'}>
+			<Tooltip text={t.projectSettingsLockedHint}>
+				{#snippet child({ props })}
+					<div {...props} class={stacked ? 'flex flex-col gap-2' : 'flex items-center gap-2'}>
+						<Select items={fpsItems} value={String(editor.project.fps)} disabled class="h-8 w-24" />
+						<ButtonGroup
+							value={editor.project.aspectRatio}
+							options={aspectOptions}
+							size="sm"
+							onValueChange={(v) => editor.setAspectRatio(v as TimelineAspectRatio)}
+						/>
+					</div>
+				{/snippet}
+			</Tooltip>
+			<!-- Background isn't a timebase setting — stays editable while locked.
+			     Desktop only; mobile shows it in the bottom zoom bar (TimelineTracks). -->
+			{#if !stacked}
+				<BackgroundPicker
+					value={editor.project.background}
+					onValueChange={(v) => editor.setBackground(v)}
+				/>
+			{/if}
+		</div>
 	{:else}
 		<div class={stacked ? 'flex flex-col gap-2' : 'contents'}>
-			<Tooltip text={t.fps_label}>
+			<Tooltip text={t.fpsLabel}>
 				{#snippet child({ props })}
 					<div {...props}>
 						<Select
@@ -159,7 +170,7 @@
 					</div>
 				{/snippet}
 			</Tooltip>
-			<Tooltip text={t.aspect_ratio}>
+			<Tooltip text={t.aspectRatio}>
 				{#snippet child({ props })}
 					<div {...props}>
 						<ButtonGroup
@@ -171,17 +182,23 @@
 					</div>
 				{/snippet}
 			</Tooltip>
+			{#if !stacked}
+				<BackgroundPicker
+					value={editor.project.background}
+					onValueChange={(v) => editor.setBackground(v)}
+				/>
+			{/if}
 		</div>
 	{/if}
 {/snippet}
 
 <div class="flex items-center gap-1 overflow-x-auto border-b px-2 py-1.5">
 	{#if onBack}
-		<EditorIconButton label={t.back_to_projects} onclick={onBack}>
+		<EditorIconButton label={t.backToProjects} onclick={onBack}>
 			<ArrowLeft class="size-4" />
 		</EditorIconButton>
 	{/if}
-	<Tooltip text={t.rename_project}>
+	<Tooltip text={t.renameProject}>
 		{#snippet child({ props })}
 			<Button
 				{...props}
@@ -215,11 +232,11 @@
 	<!-- Add-text / add-track stay primary; icon-only on mobile to save room. -->
 	<Button variant="ghost" size="sm" class="gap-1" onclick={addText}>
 		<Type class="size-4" />
-		{#if !isMobile}{t.add_text}{/if}
+		{#if !isMobile}{t.addText}{/if}
 	</Button>
 	<Button variant="ghost" size="sm" class="gap-1" onclick={addTrack}>
 		<Plus class="size-4" />
-		{#if !isMobile}{t.add_track}{/if}
+		{#if !isMobile}{t.addTrack}{/if}
 	</Button>
 
 	<div class="ml-auto flex items-center gap-2">
@@ -228,7 +245,7 @@
 		{/if}
 
 		<!-- Gated actions render locked, never hidden. -->
-		<Tooltip text={canExport ? t.export : t.export_locked}>
+		<Tooltip text={canExport ? t.export : t.exportLocked}>
 			{#snippet child({ props })}
 				<Button
 					{...props}
@@ -248,7 +265,7 @@
 		</Tooltip>
 
 		{#if isMobile}
-			<EditorIconButton label={t.more_options} onclick={() => (moreOpen = true)}>
+			<EditorIconButton label={t.moreOptions} onclick={() => (moreOpen = true)}>
 				<MoreHorizontal class="size-4" />
 			</EditorIconButton>
 		{/if}
@@ -259,7 +276,7 @@
      editor's overflow-hidden root — unlike a popover). -->
 {#if isMobile}
 	<Sheet bind:open={moreOpen}>
-		{#snippet title()}{t.more_options}{/snippet}
+		{#snippet title()}{t.moreOptions}{/snippet}
 		<div class="flex flex-col gap-4">
 			<div class="flex flex-wrap items-center gap-1">
 				{@render editActions()}

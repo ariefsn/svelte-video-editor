@@ -345,7 +345,7 @@
 				{#if hasAudio}
 					<div
 						role="presentation"
-						title={t.fade_in}
+						title={t.fadeIn}
 						class="absolute top-0 size-2.5 -translate-x-1/2 cursor-ew-resize rounded-full border border-white bg-black/70"
 						style="left: {Math.max(5, fadeInPx)}px;"
 						onpointerdown={(e) => onFadePointerDown(e, 'fade-in')}
@@ -355,7 +355,7 @@
 					></div>
 					<div
 						role="presentation"
-						title={t.fade_out}
+						title={t.fadeOut}
 						class="absolute top-0 size-2.5 translate-x-1/2 cursor-ew-resize rounded-full border border-white bg-black/70"
 						style="right: {Math.max(5, fadeOutPx)}px;"
 						onpointerdown={(e) => onFadePointerDown(e, 'fade-out')}
@@ -369,7 +369,7 @@
 			{#if prevAdjacentId && !locked}
 				<div
 					role="presentation"
-					title={t.roll_edit}
+					title={t.rollEdit}
 					class="absolute inset-y-0 -left-1 z-10 w-2 cursor-col-resize bg-transparent hover:bg-cyan-400/60"
 					onpointerdown={onRollPointerDown}
 					onpointermove={onPointerMove}
@@ -409,7 +409,7 @@
 		{@render item({ children: splitLabel, onclick: contextSplit })}
 		{@render separator()}
 		{#if isMediaClip(clip) && clip.kind === 'video' && !clip.audioDetached}
-			{#snippet detachLabel()}<Volume1 class="size-4" />{t.detach_audio}{/snippet}
+			{#snippet detachLabel()}<Volume1 class="size-4" />{t.detachAudio}{/snippet}
 			{@render item({ children: detachLabel, onclick: () => editor.detachAudio(clip.id) })}
 		{/if}
 		{#if isMediaClip(clip) && clip.linkId}
@@ -417,7 +417,7 @@
 			{@render item({ children: unlinkLabel, onclick: () => editor.toggleLink(clip.id) })}
 		{/if}
 		{#if hasAudio && nextAdjacent && clipHasAudio(nextAdjacent)}
-			{#snippet crossfadeLabel()}<Volume1 class="size-4" />{t.add_crossfade}{/snippet}
+			{#snippet crossfadeLabel()}<Volume1 class="size-4" />{t.addCrossfade}{/snippet}
 			{@render item({
 				children: crossfadeLabel,
 				onclick: () => nextAdjacent && editor.addCrossfade(clip.id, nextAdjacent.id)
@@ -428,13 +428,13 @@
 				/>{t.lock}{/if}{/snippet}
 		{@render item({ children: lockLabel, onclick: () => editor.toggleClipLock(clip.id) })}
 		{@render separator()}
-		{#snippet deleteLabel()}<Trash2 class="size-4" />{t.delete_clips}{/snippet}
+		{#snippet deleteLabel()}<Trash2 class="size-4" />{t.deleteClips}{/snippet}
 		{@render item({
 			children: deleteLabel,
 			variant: 'destructive',
 			onclick: () => (editor.selectClip(clip.id, false), onRequestDelete())
 		})}
-		{#snippet rippleLabel()}<Trash2 class="size-4" />{t.ripple_delete}{/snippet}
+		{#snippet rippleLabel()}<Trash2 class="size-4" />{t.rippleDelete}{/snippet}
 		{@render item({
 			children: rippleLabel,
 			variant: 'destructive',

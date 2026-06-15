@@ -43,20 +43,20 @@
 	});
 
 	const filterOptions = $derived.by<ButtonGroupOption[]>(() => {
-		const opts: ButtonGroupOption[] = [{ value: 'all', label: t.bin_filter_all }];
+		const opts: ButtonGroupOption[] = [{ value: 'all', label: t.binFilterAll }];
 		if (presentKinds.has('video'))
-			opts.push({ value: 'video', icon: videoIcon, ariaLabel: t.bin_filter_videos });
+			opts.push({ value: 'video', icon: videoIcon, ariaLabel: t.binFilterVideos });
 		if (presentKinds.has('image'))
-			opts.push({ value: 'image', icon: imageIcon, ariaLabel: t.bin_filter_images });
+			opts.push({ value: 'image', icon: imageIcon, ariaLabel: t.binFilterImages });
 		if (presentKinds.has('audio'))
-			opts.push({ value: 'audio', icon: audioIcon, ariaLabel: t.bin_filter_audios });
+			opts.push({ value: 'audio', icon: audioIcon, ariaLabel: t.binFilterAudios });
 		return opts;
 	});
 
 	async function requestRemove(item: BinItem) {
 		const ok = await requestConfirm({
-			title: t.remove_from_bin,
-			message: t.remove_bin_confirm({ name: item.name })
+			title: t.removeFromBin,
+			message: t.removeBinConfirm({ name: item.name })
 		});
 		if (ok) editor.removeBinItem(item.id);
 	}
@@ -91,7 +91,7 @@
 	{/if}
 
 	{#if bin.length === 0}
-		<p class="mt-4 text-center text-xs text-muted-foreground">{t.bin_empty}</p>
+		<p class="mt-4 text-center text-xs text-muted-foreground">{t.binEmpty}</p>
 	{:else}
 		{#if presentKinds.size > 1}
 			<ButtonGroup
@@ -103,7 +103,7 @@
 			/>
 		{/if}
 		{#if filteredBin.length === 0}
-			<p class="mt-4 text-center text-xs text-muted-foreground">{t.bin_filter_empty}</p>
+			<p class="mt-4 text-center text-xs text-muted-foreground">{t.binFilterEmpty}</p>
 		{:else}
 			<!-- Columns track the panel's own width (container queries), so the grid
 			     adds columns as the resizable bin gets wider — not the viewport. -->

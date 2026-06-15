@@ -73,6 +73,7 @@ function project(tracks: TimelineTrack[], clips: MediaClip[]): TimelineProject {
 		range: null,
 		bin: [],
 		zoom: 50,
+		background: null,
 		createdAt: 0,
 		updatedAt: 0
 	};

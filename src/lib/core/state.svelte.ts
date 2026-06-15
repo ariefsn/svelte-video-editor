@@ -16,6 +16,7 @@ import {
 	type BinItem,
 	type ClipTransition,
 	type MediaClip,
+	type ProjectBackground,
 	type TextClip,
 	type TextClipStyle,
 	type TimelineAspectRatio,
@@ -627,6 +628,15 @@ export class TimelineEditorStore {
 
 	groupSelection(): void {
 		if (this.selectedClipIds.size < 2) return;
+		// Toggle: if the whole selection is already one group, ungroup it instead
+		// of re-grouping (which would just reassign a fresh id and recolor it).
+		const selected = this.selectedClips;
+		const firstGroup = selected[0]?.groupId ?? null;
+		const alreadyOneGroup = firstGroup !== null && selected.every((c) => c.groupId === firstGroup);
+		if (alreadyOneGroup) {
+			this.ungroupSelection();
+			return;
+		}
 		const groupId = uid();
 		this.#mutate(() => {
 			for (const clip of this.selectedClips) clip.groupId = groupId;
@@ -788,6 +798,14 @@ export class TimelineEditorStore {
 		if (this.project.clips.length > 0) return; // locked once clips exist
 		this.#mutate(() => {
 			this.project.fps = fps;
+		});
+	}
+
+	// `null` = transparent (no background). Safe to change anytime, like aspect
+	// ratio (unlike fps, which changes the timebase).
+	setBackground(background: ProjectBackground | null): void {
+		this.#mutate(() => {
+			this.project.background = background;
 		});
 	}
 

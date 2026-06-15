@@ -9,142 +9,155 @@ import { getContext, setContext } from 'svelte';
 // Most values are plain strings. The four that interpolate are functions.
 
 export type Messages = {
-	add_crossfade: string;
-	add_text: string;
-	add_track: string;
+	addCrossfade: string;
+	addText: string;
+	addTrack: string;
 	animation: string;
-	anim_on_enter: string;
-	anim_on_exit: string;
-	anim_duration: string;
-	anim_easing: string;
-	anim_none: string;
-	anim_fade: string;
-	anim_slide_left: string;
-	anim_slide_right: string;
-	anim_slide_up: string;
-	anim_slide_down: string;
-	anim_scale: string;
-	anim_zoom: string;
-	anim_bounce: string;
-	anim_pop: string;
-	anim_spin: string;
-	anim_blur: string;
-	anim_wipe: string;
-	anim_flip: string;
-	easing_linear: string;
-	easing_ease_in: string;
-	easing_ease_out: string;
-	easing_ease_in_out: string;
-	align_center: string;
-	align_left: string;
-	align_right: string;
+	animOnEnter: string;
+	animOnExit: string;
+	animDuration: string;
+	animEasing: string;
+	animNone: string;
+	animFade: string;
+	animSlideLeft: string;
+	animSlideRight: string;
+	animSlideUp: string;
+	animSlideDown: string;
+	animScale: string;
+	animZoom: string;
+	animBounce: string;
+	animPop: string;
+	animSpin: string;
+	animBlur: string;
+	animWipe: string;
+	animFlip: string;
+	easingLinear: string;
+	easingEaseIn: string;
+	easingEaseOut: string;
+	easingEaseInOut: string;
+	alignCenter: string;
+	alignLeft: string;
+	alignRight: string;
 	alignment: string;
-	aspect_ratio: string;
-	back_to_projects: string;
+	aspectRatio: string;
+	backToProjects: string;
 	background: string;
-	background_opacity: string;
-	bin_empty: string;
-	bin_filter_all: string;
-	bin_filter_videos: string;
-	bin_filter_images: string;
-	bin_filter_audios: string;
-	bin_filter_empty: string;
+	backgroundOpacity: string;
+	backgroundSolid: string;
+	backgroundGradient: string;
+	backgroundAngle: string;
+	backgroundPresets: string;
+	backgroundCustom: string;
+	backgroundNone: string;
+	backgroundFrom: string;
+	backgroundTo: string;
+	border: string;
+	borderWidth: string;
+	shadowColor: string;
+	shadowBlur: string;
+	shadowOffset: string;
+	binEmpty: string;
+	binFilterAll: string;
+	binFilterVideos: string;
+	binFilterImages: string;
+	binFilterAudios: string;
+	binFilterEmpty: string;
 	cancel: string;
-	media_library: string;
-	clips_label: string;
-	close_gap: string;
-	close_gap_all: string;
+	mediaLibrary: string;
+	clipsLabel: string;
+	closeGap: string;
+	closeGapAll: string;
 	color: string;
 	copy: string;
 	cut: string;
-	default_text: string;
-	delete_clips: string;
-	delete_clips_confirm: (args: { count: number }) => string;
-	delete_marker: string;
-	delete_project: string;
-	delete_project_confirm: (args: { name: string }) => string;
-	delete_track: string;
-	delete_track_confirm: (args: { name: string }) => string;
-	detach_audio: string;
+	defaultText: string;
+	deleteClips: string;
+	deleteClipsConfirm: (args: { count: number }) => string;
+	deleteMarker: string;
+	deleteProject: string;
+	deleteProjectConfirm: (args: { name: string }) => string;
+	deleteTrack: string;
+	deleteTrackConfirm: (args: { name: string }) => string;
+	detachAudio: string;
 	duplicate: string;
 	export: string;
-	export_locked: string;
-	fade_in: string;
-	fade_out: string;
-	follow_playhead: string;
-	font_size: string;
-	font_weight: string;
-	fps_label: string;
+	exportLocked: string;
+	fadeIn: string;
+	fadeOut: string;
+	followPlayhead: string;
+	fontSize: string;
+	fontWeight: string;
+	fpsLabel: string;
 	group: string;
 	hide: string;
-	inspector_empty: string;
-	last_edited: string;
+	inspectorEmpty: string;
+	lastEdited: string;
 	lock: string;
-	loop_range: string;
+	loopRange: string;
 	marker: string;
-	marker_label: string;
-	more_options: string;
+	markerLabel: string;
+	moreOptions: string;
 	mute: string;
-	new_project: string;
-	no_gap_here: string;
-	op_blocked_contiguous: string;
-	op_blocked_invalid: string;
-	op_blocked_locked: string;
-	op_blocked_no_audio: string;
-	op_blocked_no_target: string;
-	op_blocked_occupied: string;
+	newProject: string;
+	noGapHere: string;
+	opBlockedContiguous: string;
+	opBlockedInvalid: string;
+	opBlockedLocked: string;
+	opBlockedNoAudio: string;
+	opBlockedNoTarget: string;
+	opBlockedOccupied: string;
 	options: string;
 	pause: string;
 	play: string;
-	position_hint: string;
-	preview_empty_hint: string;
-	preview_empty_title: string;
-	project_name: string;
-	project_settings_locked_hint: string;
-	projects_empty: string;
-	projects_title: string;
+	positionHint: string;
+	previewEmptyHint: string;
+	previewEmptyTitle: string;
+	projectName: string;
+	projectSettingsLockedHint: string;
+	projectsEmpty: string;
+	projectsTitle: string;
 	redo: string;
-	remove_bin_confirm: (args: { name: string }) => string;
-	remove_from_bin: string;
-	rename_project: string;
-	replace_clamped: string;
-	resize_panes: string;
-	resize_bin: string;
-	resize_inspector: string;
-	ripple_delete: string;
-	roll_edit: string;
+	removeBinConfirm: (args: { name: string }) => string;
+	removeFromBin: string;
+	renameProject: string;
+	replaceClamped: string;
+	resizePanes: string;
+	resizeBin: string;
+	resizeInspector: string;
+	rippleDelete: string;
+	rollEdit: string;
 	save: string;
-	shortcut_alt_drag: string;
-	shortcut_clipboard: string;
-	shortcut_group: string;
-	shortcut_insert: string;
-	shortcut_multi_select: string;
-	shortcut_no_snap: string;
-	shortcut_play_pause: string;
-	shortcut_range: string;
-	shortcut_slip: string;
-	shortcut_split: string;
-	shortcut_ungroup: string;
-	shortcuts_title: string;
+	shortcutAltDrag: string;
+	shortcutClipboard: string;
+	shortcutGroup: string;
+	shortcutInsert: string;
+	shortcutMultiSelect: string;
+	shortcutNoSnap: string;
+	shortcutPlayPause: string;
+	shortcutRange: string;
+	shortcutSlip: string;
+	shortcutSplit: string;
+	shortcutUngroup: string;
+	shortcutsTitle: string;
 	show: string;
 	snap: string;
 	solo: string;
 	split: string;
-	text_content: string;
-	text_shadow: string;
-	tracks_label: string;
+	textContent: string;
+	textShadow: string;
+	tracksLabel: string;
 	undo: string;
 	ungroup: string;
 	unlink: string;
 	unlock: string;
 	unmute: string;
 	volume: string;
-	weight_bold: string;
-	weight_regular: string;
-	weight_semibold: string;
+	weightBold: string;
+	weightRegular: string;
+	weightSemibold: string;
 	zoom: string;
-	zoom_in: string;
-	zoom_out: string;
+	zoomIn: string;
+	zoomOut: string;
 };
 
 export type MessageKey = keyof Messages;
@@ -153,147 +166,159 @@ export type MessageKey = keyof Messages;
 export type MessagesOverride = Partial<Messages>;
 
 export const defaultMessages: Messages = {
-	add_crossfade: 'Add crossfade',
-	add_text: 'Text',
-	add_track: 'Track',
+	addCrossfade: 'Add crossfade',
+	addText: 'Text',
+	addTrack: 'Track',
 	animation: 'Animation',
-	anim_on_enter: 'On enter',
-	anim_on_exit: 'On exit',
-	anim_duration: 'Duration',
-	anim_easing: 'Easing',
-	anim_none: 'None',
-	anim_fade: 'Fade',
-	anim_slide_left: 'Slide left',
-	anim_slide_right: 'Slide right',
-	anim_slide_up: 'Slide up',
-	anim_slide_down: 'Slide down',
-	anim_scale: 'Scale',
-	anim_zoom: 'Zoom',
-	anim_bounce: 'Bounce',
-	anim_pop: 'Pop',
-	anim_spin: 'Spin',
-	anim_blur: 'Blur',
-	anim_wipe: 'Wipe',
-	anim_flip: 'Flip',
-	easing_linear: 'Linear',
-	easing_ease_in: 'Ease in',
-	easing_ease_out: 'Ease out',
-	easing_ease_in_out: 'Ease in-out',
-	align_center: 'Center',
-	align_left: 'Left',
-	align_right: 'Right',
+	animOnEnter: 'On enter',
+	animOnExit: 'On exit',
+	animDuration: 'Duration',
+	animEasing: 'Easing',
+	animNone: 'None',
+	animFade: 'Fade',
+	animSlideLeft: 'Slide left',
+	animSlideRight: 'Slide right',
+	animSlideUp: 'Slide up',
+	animSlideDown: 'Slide down',
+	animScale: 'Scale',
+	animZoom: 'Zoom',
+	animBounce: 'Bounce',
+	animPop: 'Pop',
+	animSpin: 'Spin',
+	animBlur: 'Blur',
+	animWipe: 'Wipe',
+	animFlip: 'Flip',
+	easingLinear: 'Linear',
+	easingEaseIn: 'Ease in',
+	easingEaseOut: 'Ease out',
+	easingEaseInOut: 'Ease in-out',
+	alignCenter: 'Center',
+	alignLeft: 'Left',
+	alignRight: 'Right',
 	alignment: 'Alignment',
-	aspect_ratio: 'Aspect ratio',
-	back_to_projects: 'Back to projects',
+	aspectRatio: 'Aspect ratio',
+	backToProjects: 'Back to projects',
 	background: 'Background',
-	background_opacity: 'Background opacity',
-	bin_empty: 'Import media, then drag it onto the timeline.',
-	bin_filter_all: 'All',
-	bin_filter_videos: 'Videos',
-	bin_filter_images: 'Images',
-	bin_filter_audios: 'Audio',
-	bin_filter_empty: 'No items of this type.',
+	backgroundOpacity: 'Background opacity',
+	backgroundSolid: 'Solid',
+	backgroundGradient: 'Gradient',
+	backgroundAngle: 'Angle',
+	backgroundPresets: 'Presets',
+	backgroundCustom: 'Custom',
+	backgroundNone: 'None',
+	backgroundFrom: 'From',
+	backgroundTo: 'To',
+	border: 'Border',
+	borderWidth: 'Border width',
+	shadowColor: 'Shadow color',
+	shadowBlur: 'Shadow blur',
+	shadowOffset: 'Shadow offset',
+	binEmpty: 'Import media, then drag it onto the timeline.',
+	binFilterAll: 'All',
+	binFilterVideos: 'Videos',
+	binFilterImages: 'Images',
+	binFilterAudios: 'Audio',
+	binFilterEmpty: 'No items of this type.',
 	cancel: 'Cancel',
-	media_library: 'Media',
-	clips_label: 'clips',
-	close_gap: 'Close gap',
-	close_gap_all: 'Close gap (all tracks)',
+	mediaLibrary: 'Media',
+	clipsLabel: 'clips',
+	closeGap: 'Close gap',
+	closeGapAll: 'Close gap (all tracks)',
 	color: 'Color',
 	copy: 'Copy',
 	cut: 'Cut',
-	default_text: 'Your text',
-	delete_clips: 'Delete clips',
-	delete_clips_confirm: ({ count }) =>
-		`Delete ${count} selected clip(s)? You can undo this with ⌘Z.`,
-	delete_marker: 'Delete marker',
-	delete_project: 'Delete project',
-	delete_project_confirm: ({ name }) =>
+	defaultText: 'Your text',
+	deleteClips: 'Delete clips',
+	deleteClipsConfirm: ({ count }) => `Delete ${count} selected clip(s)? You can undo this with ⌘Z.`,
+	deleteMarker: 'Delete marker',
+	deleteProject: 'Delete project',
+	deleteProjectConfirm: ({ name }) =>
 		`Delete "${name}"? This only removes the project — media assets stay in your library.`,
-	delete_track: 'Delete track',
-	delete_track_confirm: ({ name }) =>
+	deleteTrack: 'Delete track',
+	deleteTrackConfirm: ({ name }) =>
 		`Delete "${name}" and all clips on it? You can undo this with ⌘Z.`,
-	detach_audio: 'Detach audio',
+	detachAudio: 'Detach audio',
 	duplicate: 'Duplicate',
 	export: 'Export',
-	export_locked: 'Upgrade to export your video',
-	fade_in: 'Fade in',
-	fade_out: 'Fade out',
-	follow_playhead: 'Follow playhead',
-	font_size: 'Font size',
-	font_weight: 'Font weight',
-	fps_label: 'Frame rate',
+	exportLocked: 'Upgrade to export your video',
+	fadeIn: 'Fade in',
+	fadeOut: 'Fade out',
+	followPlayhead: 'Follow playhead',
+	fontSize: 'Font size',
+	fontWeight: 'Font weight',
+	fpsLabel: 'Frame rate',
 	group: 'Group',
 	hide: 'Hide',
-	inspector_empty: 'Select a clip to edit its options.',
-	last_edited: 'Last edited',
+	inspectorEmpty: 'Select a clip to edit its options.',
+	lastEdited: 'Last edited',
 	lock: 'Lock',
-	loop_range: 'Loop in/out range',
+	loopRange: 'Loop in/out range',
 	marker: 'Marker',
-	marker_label: 'Marker label',
-	more_options: 'More',
+	markerLabel: 'Marker label',
+	moreOptions: 'More',
 	mute: 'Mute',
-	new_project: 'New project',
-	no_gap_here: 'No gap here',
-	op_blocked_contiguous: 'Ripple delete needs a contiguous selection',
-	op_blocked_invalid: "That edit isn't possible here",
-	op_blocked_locked: 'Blocked by a locked clip or track',
-	op_blocked_no_audio: 'This clip has no audio to detach',
-	op_blocked_no_target: 'No suitable track found',
-	op_blocked_occupied: 'Not enough room — something is in the way',
+	newProject: 'New project',
+	noGapHere: 'No gap here',
+	opBlockedContiguous: 'Ripple delete needs a contiguous selection',
+	opBlockedInvalid: "That edit isn't possible here",
+	opBlockedLocked: 'Blocked by a locked clip or track',
+	opBlockedNoAudio: 'This clip has no audio to detach',
+	opBlockedNoTarget: 'No suitable track found',
+	opBlockedOccupied: 'Not enough room — something is in the way',
 	options: 'Options',
 	pause: 'Pause',
 	play: 'Play',
-	position_hint: 'Tip: drag the text directly on the preview to position it.',
-	preview_empty_hint: 'Import media, then drag it to the timeline below to get started.',
-	preview_empty_title: 'Drag clips onto the timeline',
-	project_name: 'Project name',
-	project_settings_locked_hint:
+	positionHint: 'Tip: drag the text directly on the preview to position it.',
+	previewEmptyHint: 'Import media, then drag it to the timeline below to get started.',
+	previewEmptyTitle: 'Drag clips onto the timeline',
+	projectName: 'Project name',
+	projectSettingsLockedHint:
 		'Remove all clips from the timeline to change the aspect ratio or frame rate',
-	projects_empty: 'No projects yet. Create one to start editing.',
-	projects_title: 'Projects',
+	projectsEmpty: 'No projects yet. Create one to start editing.',
+	projectsTitle: 'Projects',
 	redo: 'Redo',
-	remove_bin_confirm: ({ name }) =>
+	removeBinConfirm: ({ name }) =>
 		`Remove "${name}" from the bin? Clips already on the timeline are not affected.`,
-	remove_from_bin: 'Remove from bin',
-	rename_project: 'Rename project',
-	replace_clamped: 'Replaced — the new media is shorter, so the clip was trimmed',
-	resize_panes: 'Resize timeline panel',
-	resize_bin: 'Resize media panel',
-	resize_inspector: 'Resize options panel',
-	ripple_delete: 'Ripple delete',
-	roll_edit: 'Roll edit',
+	removeFromBin: 'Remove from bin',
+	renameProject: 'Rename project',
+	replaceClamped: 'Replaced — the new media is shorter, so the clip was trimmed',
+	resizePanes: 'Resize timeline panel',
+	resizeBin: 'Resize media panel',
+	resizeInspector: 'Resize options panel',
+	rippleDelete: 'Ripple delete',
+	rollEdit: 'Roll edit',
 	save: 'Save',
-	shortcut_alt_drag: 'Drag duplicate',
-	shortcut_clipboard: 'Copy/Cut/Paste/Duplicate',
-	shortcut_group: 'Group',
-	shortcut_insert: 'Insert on drop',
-	shortcut_multi_select: 'Multi-select',
-	shortcut_no_snap: 'No snapping',
-	shortcut_play_pause: 'Play/Pause',
-	shortcut_range: 'In / Out',
-	shortcut_slip: 'Slip',
-	shortcut_split: 'Split / all tracks',
-	shortcut_ungroup: 'Ungroup',
-	shortcuts_title: 'Keyboard shortcuts',
+	shortcutAltDrag: 'Drag duplicate',
+	shortcutClipboard: 'Copy/Cut/Paste/Duplicate',
+	shortcutGroup: 'Group',
+	shortcutInsert: 'Insert on drop',
+	shortcutMultiSelect: 'Multi-select',
+	shortcutNoSnap: 'No snapping',
+	shortcutPlayPause: 'Play/Pause',
+	shortcutRange: 'In / Out',
+	shortcutSlip: 'Slip',
+	shortcutSplit: 'Split / all tracks',
+	shortcutUngroup: 'Ungroup',
+	shortcutsTitle: 'Keyboard shortcuts',
 	show: 'Show',
 	snap: 'Snapping',
 	solo: 'Solo',
 	split: 'Split',
-	text_content: 'Text',
-	text_shadow: 'Text shadow',
-	tracks_label: 'tracks',
+	textContent: 'Text',
+	textShadow: 'Text shadow',
+	tracksLabel: 'tracks',
 	undo: 'Undo',
 	ungroup: 'Ungroup',
 	unlink: 'Unlink audio',
 	unlock: 'Unlock',
 	unmute: 'Unmute',
 	volume: 'Volume',
-	weight_bold: 'Bold',
-	weight_regular: 'Regular',
-	weight_semibold: 'Semibold',
+	weightBold: 'Bold',
+	weightRegular: 'Regular',
+	weightSemibold: 'Semibold',
 	zoom: 'Zoom',
-	zoom_in: 'Zoom in',
-	zoom_out: 'Zoom out'
+	zoomIn: 'Zoom in',
+	zoomOut: 'Zoom out'
 };
 
 /** Merge a host override map over the English defaults. */

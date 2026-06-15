@@ -23,6 +23,10 @@
 		side?: 'top' | 'bottom' | 'left' | 'right';
 		align?: 'start' | 'center' | 'end';
 		contentClass?: string;
+		/** Render the panel in a fixed layer positioned from the trigger's rect, so
+		 * it is never clipped by an ancestor's overflow (e.g. the toolbar's
+		 * `overflow-x-auto`). Same technique as Tooltip. */
+		fixed?: boolean;
 		trigger: Snippet<[{ props: TriggerProps }]>;
 		content: Snippet<[{ close: () => void }]>;
 	};
@@ -32,12 +36,48 @@
 		side = 'bottom',
 		align = 'center',
 		contentClass,
+		fixed = false,
 		trigger,
 		content
 	}: Props = $props();
 
 	const contentId = `ts-popover-${uid()}`;
 	let panel = $state<HTMLDivElement | null>(null);
+	let root = $state<HTMLSpanElement | null>(null);
+	let coords = $state({ x: 0, y: 0 });
+
+	// For fixed mode: measure the trigger root and place the panel against it.
+	// `x`/`y` are the panel's top edge; `anchorRight` (when align==='end') pins the
+	// panel's right edge to the trigger's right via a CSS transform. After the
+	// panel mounts we clamp x to keep it within the viewport on narrow screens.
+	let anchorRight = $state(false);
+	const MARGIN = 8;
+	function measure() {
+		if (!fixed || !root) return;
+		const r = root.getBoundingClientRect();
+		const GAP = 8;
+		anchorRight = align === 'end';
+		const y = side === 'top' ? r.top - GAP : r.bottom + GAP;
+		coords = { x: align === 'end' ? r.right : r.left, y };
+	}
+
+	function clampToViewport() {
+		if (!fixed || !panel) return;
+		const w = panel.offsetWidth;
+		// left edge of the panel after the anchorRight transform is applied
+		const left = anchorRight ? coords.x - w : coords.x;
+		const max = window.innerWidth - w - MARGIN;
+		const clampedLeft = Math.max(MARGIN, Math.min(left, max));
+		const nextX = anchorRight ? clampedLeft + w : clampedLeft;
+		if (Math.abs(nextX - coords.x) > 0.5) coords = { ...coords, x: nextX };
+	}
+
+	$effect(() => {
+		if (open) measure();
+	});
+	$effect(() => {
+		if (open && panel) clampToViewport();
+	});
 
 	function close() {
 		open = false;
@@ -63,8 +103,9 @@
 		const onDown = (e: PointerEvent) => {
 			const target = e.target as Node;
 			if (panel && !panel.contains(target)) {
-				const root = panel.closest('.relative');
-				if (root && root.contains(target)) return;
+				// Clicking the trigger itself toggles via its own handler — ignore.
+				const triggerRoot = root ?? panel.closest('.relative');
+				if (triggerRoot && triggerRoot.contains(target)) return;
 				close();
 			}
 		};
@@ -98,7 +139,7 @@
 
 <svelte:window onkeydown={onKeydown} />
 
-<span class="relative inline-flex">
+<span class="relative inline-flex" bind:this={root}>
 	{@render trigger({ props: triggerProps })}
 
 	{#if open}
@@ -107,11 +148,15 @@
 			id={contentId}
 			role="dialog"
 			class={cn(
-				'absolute z-50 rounded-md border bg-background p-4 text-foreground shadow-md outline-none',
-				sideClass,
-				alignClass,
+				'z-50 rounded-md border bg-background p-4 text-foreground shadow-md outline-none',
+				fixed ? 'fixed' : 'absolute',
+				fixed ? '' : sideClass,
+				fixed ? '' : alignClass,
 				contentClass
 			)}
+			style={fixed
+				? `left: ${coords.x}px; top: ${coords.y}px; transform: translate(${anchorRight ? '-100%' : '0'}, ${side === 'top' ? '-100%' : '0'});`
+				: undefined}
 		>
 			{@render content({ close })}
 		</div>

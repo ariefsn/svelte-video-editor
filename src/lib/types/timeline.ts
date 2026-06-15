@@ -49,7 +49,7 @@ export const TRACK_HEIGHT_MIN = 32;
 export const TRACK_HEIGHT_MAX = 120;
 export const TRACK_HEIGHT_DEFAULT = 56;
 
-export const ZOOM_MIN = 10;
+export const ZOOM_MIN = 5;
 export const ZOOM_MAX = 400;
 export const ZOOM_DEFAULT = 50;
 
@@ -157,6 +157,9 @@ export type TextClipStyle = {
 	color: string;
 	backgroundColor: string | null;
 	backgroundOpacity: number;
+	// null = no border (mirrors backgroundColor). Width is % of stage height.
+	borderColor: string | null;
+	borderWidthPct: number;
 	align: 'left' | 'center' | 'right';
 	// Anchor center, % of stage width/height.
 	xPct: number;
@@ -164,6 +167,11 @@ export type TextClipStyle = {
 	paddingPct: number;
 	borderRadiusPct: number;
 	shadow: boolean;
+	// Shadow appearance (used when `shadow` is on). Blur/offset are % of stage
+	// height so they scale with font size.
+	shadowColor: string;
+	shadowBlurPct: number;
+	shadowOffsetPct: number;
 };
 
 export type TextClip = ClipBase & {
@@ -189,6 +197,68 @@ export type TimelineMarker = {
 	color: string;
 	label: string;
 };
+
+// ---- composition background ----------------------------------------------
+
+/** Project-level preview/composition background. `null` (on the project) means
+ * transparent — no background. The default for new/migrated projects is solid
+ * black, not null, so the historical look is preserved. */
+export type ProjectBackground =
+	| { type: 'solid'; color: string }
+	| { type: 'gradient'; from: string; to: string; angle: number };
+
+/** Solid background presets (20). */
+export const BACKGROUND_SOLID_PRESETS = [
+	'#000000',
+	'#ffffff',
+	'#18181b',
+	'#27272a',
+	'#3f3f46',
+	'#1e293b',
+	'#0f172a',
+	'#0c4a6e',
+	'#1e3a8a',
+	'#312e81',
+	'#4c1d95',
+	'#831843',
+	'#7f1d1d',
+	'#7c2d12',
+	'#713f12',
+	'#14532d',
+	'#064e3b',
+	'#134e4a',
+	'#164e63',
+	'#52525b'
+] as const;
+
+/** Linear-gradient background presets (20). */
+export const BACKGROUND_GRADIENT_PRESETS: { from: string; to: string; angle: number }[] = [
+	{ from: '#0f172a', to: '#334155', angle: 135 },
+	{ from: '#1e3a8a', to: '#3b82f6', angle: 135 },
+	{ from: '#7c3aed', to: '#ec4899', angle: 135 },
+	{ from: '#f97316', to: '#ef4444', angle: 135 },
+	{ from: '#059669', to: '#10b981', angle: 135 },
+	{ from: '#0891b2', to: '#22d3ee', angle: 135 },
+	{ from: '#db2777', to: '#f43f5e', angle: 135 },
+	{ from: '#7c2d12', to: '#b45309', angle: 135 },
+	{ from: '#312e81', to: '#6d28d9', angle: 135 },
+	{ from: '#111827', to: '#000000', angle: 180 },
+	{ from: '#fde68a', to: '#f59e0b', angle: 135 },
+	{ from: '#a7f3d0', to: '#10b981', angle: 135 },
+	{ from: '#bfdbfe', to: '#3b82f6', angle: 135 },
+	{ from: '#fecaca', to: '#ef4444', angle: 135 },
+	{ from: '#e9d5ff', to: '#a855f7', angle: 135 },
+	{ from: '#fbcfe8', to: '#ec4899', angle: 135 },
+	{ from: '#1f2937', to: '#4b5563', angle: 90 },
+	{ from: '#0d9488', to: '#0e7490', angle: 135 },
+	{ from: '#f43f5e', to: '#8b5cf6', angle: 135 },
+	{ from: '#22c55e', to: '#84cc16', angle: 135 }
+];
+
+/** Default project background — explicit solid black (not transparent). */
+export function defaultProjectBackground(): ProjectBackground {
+	return { type: 'solid', color: '#000000' };
+}
 
 export type TimelineRange = {
 	inFrame: number;
@@ -223,6 +293,8 @@ export type TimelineProject = {
 	range: TimelineRange | null;
 	bin: BinItem[];
 	zoom: number;
+	// Preview/composition background. `null` = transparent (no background).
+	background: ProjectBackground | null;
 	createdAt: number;
 	updatedAt: number;
 };
@@ -271,12 +343,17 @@ export function defaultTextClipStyle(): TextClipStyle {
 		color: '#ffffff',
 		backgroundColor: null,
 		backgroundOpacity: 0.6,
+		borderColor: null,
+		borderWidthPct: 0.3,
 		align: 'center',
 		xPct: 50,
 		yPct: 80,
 		paddingPct: 1.5,
 		borderRadiusPct: 1,
-		shadow: true
+		shadow: true,
+		shadowColor: '#000000',
+		shadowBlurPct: 0.4,
+		shadowOffsetPct: 0.15
 	};
 }
 
@@ -310,6 +387,7 @@ export function createEmptyProject(
 		range: null,
 		bin: [],
 		zoom: ZOOM_DEFAULT,
+		background: defaultProjectBackground(),
 		createdAt: now,
 		updatedAt: now
 	};

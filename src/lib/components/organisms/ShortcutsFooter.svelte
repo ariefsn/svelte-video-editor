@@ -5,19 +5,19 @@
 	 * shortcuts sheet (TransportBar) so the two never drift. */
 	export function shortcutHints(t: Messages): { keys: string; label: string }[] {
 		return [
-			{ keys: 'Space', label: t.shortcut_play_pause },
-			{ keys: '⌘Click', label: t.shortcut_multi_select },
-			{ keys: 'S / ⇧S', label: t.shortcut_split },
-			{ keys: '⌘G / ⌘⇧G', label: t.shortcut_group },
-			{ keys: '⌘C/X/V/D', label: t.shortcut_clipboard },
-			{ keys: '⇧⌫', label: t.ripple_delete },
-			{ keys: 'I / O', label: t.shortcut_range },
+			{ keys: 'Space', label: t.shortcutPlayPause },
+			{ keys: '⌘Click', label: t.shortcutMultiSelect },
+			{ keys: 'S / ⇧S', label: t.shortcutSplit },
+			{ keys: '⌘G / ⌘⇧G', label: `${t.shortcutGroup} / ${t.shortcutUngroup}` },
+			{ keys: '⌘C/X/V/D', label: t.shortcutClipboard },
+			{ keys: '⇧⌫', label: t.rippleDelete },
+			{ keys: 'I / O', label: t.shortcutRange },
 			{ keys: 'M', label: t.marker },
 			{ keys: '⌥L', label: t.unlink },
-			{ keys: '⌥drag', label: t.shortcut_alt_drag },
-			{ keys: '⌘drop', label: t.shortcut_insert },
-			{ keys: '⌘⌥drag', label: t.shortcut_slip },
-			{ keys: '⇧drag', label: t.shortcut_no_snap }
+			{ keys: '⌥drag', label: t.shortcutAltDrag },
+			{ keys: '⌘drop', label: t.shortcutInsert },
+			{ keys: '⌘⌥drag', label: t.shortcutSlip },
+			{ keys: '⇧drag', label: t.shortcutNoSnap }
 		];
 	}
 </script>

@@ -126,12 +126,12 @@
 	const builtinConfirm = confirmCtl.builtin;
 
 	const failReasonKey: Record<OpFailReason, MessageKey> = {
-		locked: 'op_blocked_locked',
-		occupied: 'op_blocked_occupied',
-		'not-contiguous': 'op_blocked_contiguous',
-		'no-target': 'op_blocked_no_target',
-		'no-audio': 'op_blocked_no_audio',
-		invalid: 'op_blocked_invalid'
+		locked: 'opBlockedLocked',
+		occupied: 'opBlockedOccupied',
+		'not-contiguous': 'opBlockedContiguous',
+		'no-target': 'opBlockedNoTarget',
+		'no-audio': 'opBlockedNoAudio',
+		invalid: 'opBlockedInvalid'
 	};
 
 	// The store is created once per mounted editor; the host remounts via
@@ -157,8 +157,8 @@
 	async function requestDeleteSelected() {
 		if (editor.selectedClipIds.size === 0) return;
 		const ok = await confirmCtl.requestConfirm({
-			title: t.delete_clips,
-			message: t.delete_clips_confirm({ count: editor.selectedClipIds.size })
+			title: t.deleteClips,
+			message: t.deleteClipsConfirm({ count: editor.selectedClipIds.size })
 		});
 		if (ok) editor.deleteSelected();
 	}
@@ -477,7 +477,7 @@
 					<AssetBinPanel {binImport} />
 				</aside>
 				{@render colDivider({
-					label: t.resize_bin,
+					label: t.resizeBin,
 					tipSide: 'right',
 					down: onBinResizeDown,
 					move: onBinResizeMove,
@@ -507,7 +507,7 @@
 				{@render inspector(sectionCtx)}
 			{:else if editor.activeClip}
 				{@render colDivider({
-					label: t.resize_inspector,
+					label: t.resizeInspector,
 					tipSide: 'left',
 					down: onInspectorResizeDown,
 					move: onInspectorResizeMove,
@@ -521,13 +521,13 @@
 		{/if}
 	</div>
 
-	<Tooltip text={t.resize_panes}>
+	<Tooltip text={t.resizePanes}>
 		{#snippet child({ props })}
 			<div
 				{...props}
 				role="separator"
 				aria-orientation="horizontal"
-				aria-label={t.resize_panes}
+				aria-label={t.resizePanes}
 				tabindex="0"
 				class="group flex h-2 shrink-0 cursor-row-resize touch-none items-center justify-center border-y hover:bg-primary/10 focus-visible:bg-primary/10 focus-visible:outline-none"
 				onpointerdown={onDividerPointerDown}
@@ -569,7 +569,7 @@
      should avoid fixed widths.) -->
 {#if isMobile}
 	<Sheet bind:open={binSheetOpen}>
-		{#snippet title()}{t.media_library}{/snippet}
+		{#snippet title()}{t.mediaLibrary}{/snippet}
 		<div class="h-[60vh]">
 			{#if assetBin}
 				{@render assetBin(sectionCtx)}
@@ -599,7 +599,7 @@
 		if (!v) confirmCtl.resolveBuiltin(false);
 	}}
 	onConfirm={() => confirmCtl.resolveBuiltin(true)}
-	confirmLabel={t.delete_clips}
+	confirmLabel={t.deleteClips}
 	cancelLabel={t.cancel}
 >
 	{#snippet title()}{builtinConfirm.title}{/snippet}

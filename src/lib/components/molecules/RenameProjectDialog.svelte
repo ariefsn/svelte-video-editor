@@ -25,10 +25,10 @@
 </script>
 
 <Dialog bind:open onOpened={() => (value = name)}>
-	{#snippet title()}{t.rename_project}{/snippet}
+	{#snippet title()}{t.renameProject}{/snippet}
 	<form id="rename-timeline-project" onsubmit={submit}>
-		<Label for="timeline-project-name" class="mb-2">{t.project_name}</Label>
-		<InputText id="timeline-project-name" bind:value placeholder={t.project_name} />
+		<Label for="timeline-project-name" class="mb-2">{t.projectName}</Label>
+		<InputText id="timeline-project-name" bind:value placeholder={t.projectName} />
 	</form>
 	{#snippet footer()}
 		<Button variant="outline" onclick={() => (open = false)}>{t.cancel}</Button>

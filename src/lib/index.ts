@@ -45,6 +45,11 @@ export { uid, cn, formatLocalDateTime } from './utils.js';
 // per-frame visual for a clip's enter/exit animation exactly.
 export { clipAnimStyle, ease, type AnimStyle } from './core/animation.js';
 
+// ---- composition background -----------------------------------------------
+// Pure helper so a host's custom/server renderer reproduces the project's
+// background exactly. `null` → 'transparent'.
+export { backgroundCss } from './core/background.js';
+
 // ---- i18n -----------------------------------------------------------------
 export {
 	defaultMessages,
@@ -60,6 +65,9 @@ export {
 	createTrack,
 	defaultTextClipStyle,
 	defaultTransition,
+	defaultProjectBackground,
+	BACKGROUND_SOLID_PRESETS,
+	BACKGROUND_GRADIENT_PRESETS,
 	ANIM_PRESETS,
 	EASINGS,
 	clipEndF,
@@ -80,6 +88,7 @@ export {
 	ZOOM_DEFAULT,
 	CLIP_MIN_FRAMES,
 	type TimelineProject,
+	type ProjectBackground,
 	type TimelineClip,
 	type MediaClip,
 	type MediaClipKind,

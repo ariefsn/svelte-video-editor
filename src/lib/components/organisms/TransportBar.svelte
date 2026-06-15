@@ -35,7 +35,7 @@
 		{formatTimecode(editor.playheadF, fps)} / {formatTimecode(editor.durationF, fps)}
 	</span>
 	<EditorIconButton
-		label={t.loop_range}
+		label={t.loopRange}
 		active={editor.loopRange}
 		disabled={!editor.project.range}
 		onclick={() => (editor.loopRange = !editor.loopRange)}
@@ -43,14 +43,14 @@
 		<Repeat class="size-3.5" />
 	</EditorIconButton>
 	<EditorIconButton
-		label={t.follow_playhead}
+		label={t.followPlayhead}
 		active={editor.followPlayhead}
 		onclick={() => (editor.followPlayhead = !editor.followPlayhead)}
 	>
 		<LocateFixed class="size-3.5" />
 	</EditorIconButton>
 	{#if isMobile}
-		<EditorIconButton label={t.shortcuts_title} onclick={() => (shortcutsOpen = true)}>
+		<EditorIconButton label={t.shortcutsTitle} onclick={() => (shortcutsOpen = true)}>
 			<Keyboard class="size-3.5" />
 		</EditorIconButton>
 	{/if}
@@ -58,7 +58,7 @@
 
 {#if isMobile}
 	<Sheet bind:open={shortcutsOpen}>
-		{#snippet title()}{t.shortcuts_title}{/snippet}
+		{#snippet title()}{t.shortcutsTitle}{/snippet}
 		<ul class="flex flex-col gap-1.5 text-sm">
 			{#each hints as hint (hint.keys)}
 				<li class="flex items-center justify-between gap-3">

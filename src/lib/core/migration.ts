@@ -3,6 +3,8 @@ import {
 	TRACK_HEIGHT_DEFAULT,
 	ZOOM_DEFAULT,
 	FPS_OPTIONS,
+	defaultTextClipStyle,
+	defaultProjectBackground,
 	type BinItem,
 	type MediaClip,
 	type TextClip,
@@ -70,11 +72,15 @@ function migrateClip(raw: RawRecord, fps: number, fromV1: boolean): TimelineClip
 	};
 
 	if (raw.kind === 'text') {
+		// Merge over defaults so older projects gain newly-added style fields
+		// (e.g. border, customizable shadow) with sane values instead of
+		// `undefined` — which would otherwise desync the inspector toggles from
+		// the rendered output.
 		return {
 			...base,
 			kind: 'text',
 			text: str(raw.text, ''),
-			style: raw.style as TextClip['style']
+			style: { ...defaultTextClipStyle(), ...((raw.style as Partial<TextClip['style']>) ?? {}) }
 		};
 	}
 
@@ -144,6 +150,12 @@ export function migrateProject(input: unknown): TimelineProject {
 		range: (raw.range as TimelineProject['range']) ?? null,
 		bin: Array.isArray(raw.bin) ? (raw.bin as BinItem[]) : [],
 		zoom: num(raw.zoom, ZOOM_DEFAULT),
+		// Older projects had a black stage, so a MISSING field backfills to solid
+		// black; a stored `null` (deliberate transparent) is preserved.
+		background:
+			raw.background === null
+				? null
+				: ((raw.background as TimelineProject['background']) ?? defaultProjectBackground()),
 		createdAt: num(raw.createdAt, 0),
 		updatedAt: num(raw.updatedAt, 0)
 	};

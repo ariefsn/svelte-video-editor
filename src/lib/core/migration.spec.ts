@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { migrateProject } from './migration.js';
+import { backgroundCss } from './background.js';
+import { defaultProjectBackground } from '../types/timeline.js';
 
 function v1Project(overrides: Record<string, unknown> = {}) {
 	return {
@@ -71,6 +73,19 @@ describe('migrateProject v1 → v2', () => {
 	it('drops the legacy track kind field', () => {
 		const p = migrateProject(v1Project());
 		expect('kind' in p.tracks[0]).toBe(false);
+	});
+
+	it('backfills a missing background to solid black', () => {
+		const p = migrateProject(v1Project());
+		expect(p.background).toEqual({ type: 'solid', color: '#000000' });
+		expect(backgroundCss(p.background)).toBe('#000000');
+	});
+
+	it('preserves an explicit transparent (null) background', () => {
+		const p = migrateProject({ ...(v1Project() as object), background: null });
+		expect(p.background).toBeNull();
+		expect(backgroundCss(null)).toBe('transparent');
+		expect(backgroundCss(defaultProjectBackground())).toBe('#000000');
 	});
 
 	it('normalizes same-track overlaps by head-trimming the later clip', () => {
@@ -208,5 +223,12 @@ describe('migrateProject v1 → v2', () => {
 		expect(clip.kind).toBe('text');
 		expect(clip.startF).toBe(60);
 		expect(clip.durationF).toBe(90);
+		// Partial styles are merged over defaults so newer fields are backfilled
+		// (keeps inspector toggles in sync with the rendered output).
+		if (clip.kind === 'text') {
+			expect(clip.style.fontSizePct).toBe(6);
+			expect(clip.style.borderColor).toBe(null);
+			expect(clip.style.shadowColor).toBe('#000000');
+		}
 	});
 });

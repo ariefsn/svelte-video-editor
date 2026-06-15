@@ -74,7 +74,7 @@
 	{#snippet content()}
 		<div class="flex flex-col gap-2">
 			<InputText
-				placeholder={t.marker_label}
+				placeholder={t.markerLabel}
 				value={marker.label}
 				oninput={(e: Event) =>
 					editor.updateMarker(marker.id, { label: (e.currentTarget as HTMLInputElement).value })}
@@ -101,14 +101,14 @@
 						{/snippet}
 					</Tooltip>
 				{/each}
-				<Tooltip text={t.delete_marker}>
+				<Tooltip text={t.deleteMarker}>
 					{#snippet child({ props })}
 						<Button
 							{...props}
 							variant="ghost"
 							size="icon"
 							class="ml-auto size-6"
-							aria-label={t.delete_marker}
+							aria-label={t.deleteMarker}
 							onclick={() => {
 								open = false;
 								editor.removeMarker(marker.id);

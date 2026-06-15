@@ -21,11 +21,11 @@ export default defineConfig({
 			adapter: adapter({
 				pages: 'build',
 				assets: 'build',
-				fallback: undefined,
+				fallback: undefined
 			}),
 			prerender: {
 				handleMissingId: 'warn'
-			},
+			}
 		})
 	],
 	test: {

@@ -71,8 +71,8 @@
 
 	async function requestDeleteTrack() {
 		const ok = await requestConfirm({
-			title: t.delete_track,
-			message: t.delete_track_confirm({ name: track.name })
+			title: t.deleteTrack,
+			message: t.deleteTrackConfirm({ name: track.name })
 		});
 		if (ok) editor.removeTrack(track.id);
 	}
@@ -287,7 +287,7 @@
 						<LockOpen class="size-3.5" />
 					{/if}
 				</EditorIconButton>
-				<EditorIconButton label={t.delete_track} onclick={requestDeleteTrack}>
+				<EditorIconButton label={t.deleteTrack} onclick={requestDeleteTrack}>
 					<Trash2 class="size-3.5" />
 				</EditorIconButton>
 			</div>
@@ -343,7 +343,7 @@
 		{#snippet content({ item })}
 			{#if ctxGap}
 				{@const gap = ctxGap}
-				{#snippet closeGap()}{t.close_gap}{/snippet}
+				{#snippet closeGap()}{t.closeGap}{/snippet}
 				{@render item({
 					children: closeGap,
 					onclick: () => {
@@ -351,7 +351,7 @@
 						editor.closeSelectedGap(false);
 					}
 				})}
-				{#snippet closeGapAll()}{t.close_gap_all}{/snippet}
+				{#snippet closeGapAll()}{t.closeGapAll}{/snippet}
 				{@render item({
 					children: closeGapAll,
 					onclick: () => {
@@ -360,7 +360,7 @@
 					}
 				})}
 			{:else}
-				{#snippet noGap()}{t.no_gap_here}{/snippet}
+				{#snippet noGap()}{t.noGapHere}{/snippet}
 				{@render item({ children: noGap, disabled: true })}
 			{/if}
 		{/snippet}

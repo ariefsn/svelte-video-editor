@@ -66,14 +66,14 @@
 			</span>
 		{/if}
 	</div>
-	<Tooltip text={t.remove_from_bin}>
+	<Tooltip text={t.removeFromBin}>
 		{#snippet child({ props })}
 			<Button
 				{...props}
 				variant="secondary"
 				size="icon"
 				class="absolute top-1 right-1 size-5 opacity-0 transition-opacity group-hover:opacity-100"
-				aria-label={t.remove_from_bin}
+				aria-label={t.removeFromBin}
 				onclick={() => onRemove(item.id)}
 			>
 				<X class="size-3" />

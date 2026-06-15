@@ -53,8 +53,8 @@
 
 	async function requestDelete(project: TimelineProject) {
 		const ok = await confirmCtl.requestConfirm({
-			title: t.delete_project,
-			message: t.delete_project_confirm({ name: project.name })
+			title: t.deleteProject,
+			message: t.deleteProjectConfirm({ name: project.name })
 		});
 		if (ok) onDelete(project.id);
 	}
@@ -62,15 +62,15 @@
 
 <div class="flex flex-col gap-4 text-foreground">
 	<div class="flex items-center justify-between">
-		<h2 class="text-lg font-semibold">{t.projects_title}</h2>
+		<h2 class="text-lg font-semibold">{t.projectsTitle}</h2>
 		<Button onclick={onCreate}>
 			<Plus class="size-4" />
-			{t.new_project}
+			{t.newProject}
 		</Button>
 	</div>
 
 	{#if projects.length === 0}
-		<EmptyPlaceholder message={t.projects_empty}>
+		<EmptyPlaceholder message={t.projectsEmpty}>
 			{#snippet icon()}
 				<Clapperboard class="size-6 text-muted-foreground" />
 			{/snippet}
@@ -86,21 +86,21 @@
 					>
 						<h3 class="truncate pr-14 text-sm font-medium">{project.name}</h3>
 						<p class="mt-1 text-xs text-muted-foreground">
-							{t.last_edited}: {formatLocalDateTime(project.updatedAt)}
+							{t.lastEdited}: {formatLocalDateTime(project.updatedAt)}
 						</p>
 						<p class="mt-2 text-xs text-muted-foreground">
 							{project.tracks.length}
-							{t.tracks_label} · {project.clips.length}
-							{t.clips_label} · {project.aspectRatio}
+							{t.tracksLabel} · {project.clips.length}
+							{t.clipsLabel} · {project.aspectRatio}
 						</p>
 					</button>
 					<div
 						class="absolute top-3 right-3 flex gap-0.5 opacity-0 transition-opacity group-hover:opacity-100"
 					>
-						<EditorIconButton label={t.rename_project} onclick={() => openRename(project)}>
+						<EditorIconButton label={t.renameProject} onclick={() => openRename(project)}>
 							<Pencil class="size-3.5" />
 						</EditorIconButton>
-						<EditorIconButton label={t.delete_project} onclick={() => requestDelete(project)}>
+						<EditorIconButton label={t.deleteProject} onclick={() => requestDelete(project)}>
 							<Trash2 class="size-3.5" />
 						</EditorIconButton>
 					</div>
@@ -127,7 +127,7 @@
 		if (!v) confirmCtl.resolveBuiltin(false);
 	}}
 	onConfirm={() => confirmCtl.resolveBuiltin(true)}
-	confirmLabel={t.delete_project}
+	confirmLabel={t.deleteProject}
 	cancelLabel={t.cancel}
 >
 	{#snippet title()}{builtinConfirm.title}{/snippet}

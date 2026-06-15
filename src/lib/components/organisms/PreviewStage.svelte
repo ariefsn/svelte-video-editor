@@ -10,6 +10,7 @@
 		type TextClip
 	} from '../../types/timeline.js';
 	import { PRELOAD_LOOKAHEAD } from '../../core/playback.js';
+	import { backgroundCss } from '../../core/background.js';
 	import { useTimelineEditor } from '../../core/state.svelte.js';
 	import StageMedia from './StageMedia.svelte';
 	import TextOverlayView from './TextOverlayView.svelte';
@@ -75,15 +76,17 @@
 				<Clapperboard class="size-6" />
 			</div>
 			<div>
-				<p class="text-sm font-medium">{t.preview_empty_title}</p>
-				<p class="mt-1 max-w-52 text-xs">{t.preview_empty_hint}</p>
+				<p class="text-sm font-medium">{t.previewEmptyTitle}</p>
+				<p class="mt-1 max-w-52 text-xs">{t.previewEmptyHint}</p>
 			</div>
 		</div>
 	{:else}
 		<div
 			role="presentation"
-			class="relative overflow-hidden rounded-md bg-black shadow-sm"
-			style="width: {stageWidth}px; height: {stageHeight}px;"
+			class="relative overflow-hidden rounded-md shadow-sm"
+			style="width: {stageWidth}px; height: {stageHeight}px; background: {backgroundCss(
+				editor.project.background
+			)};"
 			onpointerdown={(e) => {
 				if (e.target === e.currentTarget) editor.clearSelection();
 			}}

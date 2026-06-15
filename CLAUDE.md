@@ -83,6 +83,10 @@ atoms → molecules → organisms → templates → routes
 Components:  PascalCase.svelte
 ```
 
+Identifiers use **camelCase**: variables, function names, props, store/state fields, and
+**i18n message keys** (`addText`, `backgroundOpacity` — never `add_text`). Components stay
+PascalCase; CSS theme tokens stay `--ts-*`. snake_case is not used anywhere in `src/lib`.
+
 ---
 
 # 5. Component Size (guideline)

@@ -90,7 +90,12 @@
 		background-color: {style.backgroundColor
 		? hexToRgba(style.backgroundColor, style.backgroundOpacity)
 		: 'transparent'};
-		{style.shadow ? 'text-shadow: 0 1px 3px rgba(0,0,0,0.6);' : ''}
+		border: {style.borderColor
+		? `${(stageHeight * (style.borderWidthPct ?? 0.3)) / 100}px solid ${style.borderColor}`
+		: 'none'};
+		{style.shadow
+		? `text-shadow: 0 ${(stageHeight * (style.shadowOffsetPct ?? 0.15)) / 100}px ${(stageHeight * (style.shadowBlurPct ?? 0.4)) / 100}px ${style.shadowColor ?? 'rgba(0,0,0,0.6)'};`
+		: ''}
 	"
 	onpointerdown={onPointerDown}
 	onpointermove={onPointerMove}

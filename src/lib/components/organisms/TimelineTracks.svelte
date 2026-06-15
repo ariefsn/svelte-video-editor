@@ -16,6 +16,7 @@
 	import { useTimelineEditor } from '../../core/state.svelte.js';
 	import { useViewport } from '../../core/viewport.svelte.js';
 	import EditorIconButton from './EditorIconButton.svelte';
+	import BackgroundPicker from './BackgroundPicker.svelte';
 	import TimelineMinimap from './TimelineMinimap.svelte';
 	import TimelineRuler from './TimelineRuler.svelte';
 	import TimelineTrackRow from './TimelineTrackRow.svelte';
@@ -97,7 +98,7 @@
 			);
 			if (target) {
 				const clamped = editor.replaceClipFromBin(target.id, item);
-				if (clamped) notify(t.replace_clamped, 'warning');
+				if (clamped) notify(t.replaceClamped, 'warning');
 				return;
 			}
 		}
@@ -230,13 +231,25 @@
 			/>
 		</div>
 		<div class="flex shrink-0 items-center gap-1">
-			{#if isMobile && onOpenBin}
-				<EditorIconButton label={t.media_library} onclick={onOpenBin}>
-					<FolderOpen class="size-3.5" />
-				</EditorIconButton>
+			{#if isMobile}
+				<!-- Background picker lives here on mobile (the toolbar folds into a
+				     sheet, where a fixed popover is awkward); desktop keeps it in the
+				     toolbar next to the aspect ratio. Opens upward — it sits at the
+				     very bottom of the editor. -->
+				<BackgroundPicker
+					value={editor.project.background}
+					align="end"
+					side="top"
+					onValueChange={(v) => editor.setBackground(v)}
+				/>
+				{#if onOpenBin}
+					<EditorIconButton label={t.mediaLibrary} onclick={onOpenBin}>
+						<FolderOpen class="size-3.5" />
+					</EditorIconButton>
+				{/if}
 				<div class="mx-0.5 h-5 w-px bg-border"></div>
 			{/if}
-			<EditorIconButton label={t.zoom_out} onclick={() => editor.setZoom(zoom / 1.25)}>
+			<EditorIconButton label={t.zoomOut} onclick={() => editor.setZoom(zoom / 1.25)}>
 				<ZoomOut class="size-3.5" />
 			</EditorIconButton>
 			<!-- The slider is fiddly on touch; mobile keeps just the −/+ buttons. -->
@@ -257,7 +270,7 @@
 					{/snippet}
 				</Tooltip>
 			{/if}
-			<EditorIconButton label={t.zoom_in} onclick={() => editor.setZoom(zoom * 1.25)}>
+			<EditorIconButton label={t.zoomIn} onclick={() => editor.setZoom(zoom * 1.25)}>
 				<ZoomIn class="size-3.5" />
 			</EditorIconButton>
 		</div>

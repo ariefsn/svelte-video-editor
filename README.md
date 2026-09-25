@@ -41,6 +41,7 @@ the host.
 - [Theme](#theme)
 - [Simple mode](#simple-mode) — props & callbacks only
 - [Advanced mode](#advanced-mode) — snippets, i18n, host-owned state
+- [Opening media](#opening-media) — file picker, drag-and-drop, `binImport`
 - [SvelteKit (SSR)](#sveltekit-ssr)
 - [Host contract](#host-contract)
 - [Clip transitions](#clip-transitions) — built-in enter/exit animations
@@ -277,6 +278,102 @@ Switch `lang` between `'en'` and `'id'` at runtime and the whole UI re-labels re
 
 ---
 
+## Opening media
+
+**The editor ships no import UI on purpose.** It never touches files, never fetches and never
+builds storage URLs, so _you_ decide where media comes from — an upload endpoint, an existing
+asset library, a stock picker, or the local disk. That UI goes in the `binImport` snippet, which
+receives `addItems(items: BinItem[])` and renders inside the asset bin.
+
+Until you supply it, **the bin stays empty and there is no way for a user to add media** — that is
+the contract, not a bug.
+
+### A local-file picker (click to browse + drop files)
+
+```svelte
+<script lang="ts">
+	import { uid, type BinItem } from '@ariefsn/svelte-video-editor';
+
+	let fileInput: HTMLInputElement | null = $state(null);
+	let dragging = $state(false);
+
+	// Keep blob URLs OUT of the saved project: register each file under a
+	// stable assetId, and let resolveAsset hand back the live URL.
+	const localAssets = new Map<string, string>();
+
+	async function handleFiles(files: FileList | null, addItems: (i: BinItem[]) => void) {
+		if (!files?.length) return;
+		const items: BinItem[] = [];
+		for (const file of files) {
+			const mediaType = file.type.startsWith('video/')
+				? 'video'
+				: file.type.startsWith('audio/')
+					? 'audio'
+					: 'image';
+			const url = URL.createObjectURL(file);
+			const assetId = `local:${uid()}`;
+			localAssets.set(assetId, url);
+			items.push({ id: uid(), assetId, url, name: file.name, mediaType, duration: null });
+		}
+		addItems(items);
+	}
+</script>
+
+{#snippet binImport({ addItems })}
+	<!-- preventDefault on dragover, or the browser navigates to the dropped file -->
+	<div
+		ondragover={(e) => {
+			e.preventDefault();
+			dragging = true;
+		}}
+		ondragleave={() => (dragging = false)}
+		ondrop={(e) => {
+			e.preventDefault();
+			dragging = false;
+			handleFiles(e.dataTransfer?.files ?? null, addItems);
+		}}
+		class={dragging ? 'ring-2' : ''}
+	>
+		<input
+			bind:this={fileInput}
+			type="file"
+			multiple
+			accept="video/*,audio/*,image/*"
+			hidden
+			onchange={(e) => {
+				handleFiles(e.currentTarget.files, addItems);
+				e.currentTarget.value = ''; // so re-picking the same file re-fires
+			}}
+		/>
+		<button onclick={() => fileInput?.click()}>Open media</button>
+		<p>or drop files here</p>
+	</div>
+{/snippet}
+```
+
+Pair it with a `resolveAsset` that knows about those ids:
+
+```ts
+async function resolveAsset(assetId: string) {
+	return { url: localAssets.get(assetId) ?? assetId, hasAudio: true };
+}
+```
+
+> ⚠️ **`blob:` URLs must never be persisted.** They die when the tab closes, so a project saved
+> with one comes back pointing at media that can never load. Store the `assetId` and resolve a
+> fresh URL each session — strip `blob:` values in your `onChange` handler before writing them
+> anywhere. For media that must survive a reload, upload the file and use the uploaded URL.
+
+Set `duration` (source length in **seconds**) when you know it, and clips get the right length on
+the timeline; leave it `null` and the editor falls back to a default. You can probe it from a
+detached `<video>`/`<audio>` on `loadedmetadata`.
+
+See [`src/routes/advanced/OpenMediaControl.svelte`](./src/routes/advanced/OpenMediaControl.svelte)
+for the complete version used by the `/advanced` demo, including duration probing and
+session-expiry handling.
+
+---
+
 ## SvelteKit (SSR)
 
 SvelteKit is SSR by default and the editor needs the DOM — render it under a browser guard:
@@ -302,7 +399,7 @@ SvelteKit is SSR by default and the editor needs the DOM — render it under a b
 | ------------------------------------------- | ------------------------------------- | -------- | ----------------------------------------------------------------------------------- |
 | `project`                                   | `TimelineProject`                     | ✅       | Auto-migrated from older shapes. Remount via `{#key project.id}` to switch.         |
 | `onChange`                                  | `(project) => void`                   | ✅       | Debounced (`changeDebounceMs`, default 800ms; `0` = immediate). **You persist it.** |
-| `resolveAsset`                              | `(assetId) => Promise<ResolvedAsset>` | ✅       | Resolve media URL + metadata.                                                       |
+| `resolveAsset`                              | `(assetId) => Promise<ResolvedAsset>` | ✅       | Resolve media URL + metadata. See [Opening media](#opening-media).                  |
 | `generateThumbnail`                         | `(assetId, frame) => Promise<string>` | ✅       | `frame` at a fixed 30fps reference.                                                 |
 | `onExport`                                  | `(project, range?) => void`           | ✅       | You own rendering/export.                                                           |
 | `can`                                       | `(action) => boolean`                 | ✅       | Permission gate (`'export'`, `'magnetic-main-track'`).                              |
@@ -352,6 +449,10 @@ Replace any section via a snippet receiving `SectionCtx` (`{ editor, host, onBac
 `toolbar`, `assetBin`, `preview`, `transport`, `inspector`, `tracks`, `shortcutsFooter`, plus
 `binImport` (host import UI, gets `{ addItems }`). You can **wrap** a default by rendering the
 exported section component (e.g. `<TimelineToolbar {...ctx} />`) and adding your own UI around it.
+
+`binImport` is the one you almost certainly need: the library ships **no media-import UI at all**,
+so without it the asset bin has no way to fill. See [Opening media](#opening-media) for a
+ready-made file picker and drop zone.
 
 ## Custom preview renderer
 

@@ -19,12 +19,14 @@
 		saveTimelineHeight,
 		loadLang,
 		saveLang,
+		pruneDeadLocalAssets,
 		resolveAsset,
 		generateThumbnail
 	} from '../demo-host.js';
 	import { messagesId } from '../messages-id.js';
 	import { theme } from '../theme.svelte.js';
 	import DemoToasts, { pushToast } from '../DemoToasts.svelte';
+	import OpenMediaControl from './OpenMediaControl.svelte';
 
 	let project = $state<TimelineProject | null>(null);
 	let timelineHeight = $state<number | undefined>(undefined);
@@ -33,7 +35,14 @@
 	$effect(() => {
 		if (!browser || project) return;
 		const saved = loadProject(true);
-		project = saved ? migrateProject(saved) : createEmptyProject('Advanced demo');
+		const next = saved ? migrateProject(saved) : createEmptyProject('Advanced demo');
+		// Local files from a previous session are gone (blob URLs die with the
+		// tab), so drop them rather than render media that can never load.
+		const dropped = pruneDeadLocalAssets(next);
+		if (dropped > 0) {
+			pushToast('Local files from your last session were cleared — re-open them.', 'info');
+		}
+		project = next;
 		timelineHeight = loadTimelineHeight();
 		lang = loadLang();
 	});
@@ -134,6 +143,10 @@
 					onBack={() => pushToast('onBack fired (host decides what happens).', 'info')}
 				>
 					{#snippet binImport({ addItems })}
+						<!-- Two import styles side by side: local files (session-only) and a
+						     remote URL (survives a reload). -->
+						<OpenMediaControl {addItems} onNotify={notify} />
+
 						<form
 							class="flex gap-1"
 							onsubmit={(e) => {

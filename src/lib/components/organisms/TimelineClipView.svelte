@@ -117,6 +117,7 @@
 	}
 
 	function dragMembers(): Set<string> {
+		// eslint-disable-next-line svelte/prefer-svelte-reactivity -- returned value, not state
 		const ids = new Set(
 			clip.groupId
 				? editor.project.clips.filter((c) => c.groupId === clip.groupId).map((c) => c.id)

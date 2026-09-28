@@ -45,6 +45,7 @@
 	let scrollLeft = $state(0);
 	let containerW = $state(0);
 	const viewportW = $derived(Math.max(0, containerW - TRACK_HEADER_W));
+	// eslint-disable-next-line svelte/prefer-svelte-reactivity -- plain element registry, must not trigger renders
 	const laneEls = new Map<string, HTMLElement>();
 
 	// Virtualization window (±1 viewport of buffer either side).

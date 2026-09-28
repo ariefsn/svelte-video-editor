@@ -55,6 +55,9 @@ import {
 	type OpFailReason
 } from './ops.js';
 
+/** Empty, never-mutated exclude set for ops that take one. */
+const NO_IDS: ReadonlySet<string> = new Set();
+
 export type TimelineEditorDeps = {
 	/** Debounced project-out; the host owns persistence. */
 	emitChange: (project: TimelineProject) => void;
@@ -110,6 +113,7 @@ export class TimelineEditorStore {
 	readonly durationF = $derived(projectDurationF(this.project));
 	readonly duration = $derived(frameToSec(this.durationF, this.project.fps));
 	readonly clipsByTrack = $derived.by(() => {
+		// eslint-disable-next-line svelte/prefer-svelte-reactivity -- local scratch map, returned from $derived
 		const map = new Map<string, TimelineClip[]>();
 		for (const track of this.project.tracks) map.set(track.id, []);
 		for (const clip of this.project.clips) map.get(clip.trackId)?.push(clip);
@@ -124,6 +128,7 @@ export class TimelineEditorStore {
 	);
 	/** Link partners of the selection — highlighted but NOT selected. */
 	readonly linkedHighlightIds = $derived.by(() => {
+		// eslint-disable-next-line svelte/prefer-svelte-reactivity -- local scratch set, returned from $derived
 		const ids = new Set<string>();
 		for (const clip of this.selectedClips) {
 			const partner = linkedPartner(this.project, clip);
@@ -349,13 +354,13 @@ export class TimelineEditorStore {
 		const clip = this.#binItemToClip(item, trackId, Math.round(atF));
 		this.#op(() => {
 			const result = insert
-				? insertGap(this.project, clip.startF, clip.durationF, new Set(), undefined)
+				? insertGap(this.project, clip.startF, clip.durationF, NO_IDS, undefined)
 				: resolveOverwrite(
 						this.project,
 						trackId,
 						clip.startF,
 						clip.startF + clip.durationF,
-						new Set()
+						NO_IDS
 					);
 			if (!result.ok) return result;
 			this.project.clips.push(clip);
@@ -383,7 +388,7 @@ export class TimelineEditorStore {
 				trackId,
 				clip.startF,
 				clip.startF + clip.durationF,
-				new Set()
+				NO_IDS
 			);
 			if (!result.ok) return result;
 			this.project.clips.push(clip);
@@ -459,6 +464,7 @@ export class TimelineEditorStore {
 					drag.insert ? 'insert' : 'overwrite'
 				);
 				if (!result.ok) {
+					// eslint-disable-next-line svelte/prefer-svelte-reactivity -- local lookup, not state
 					const cloneIds = new Set(clones.map((c) => c.id));
 					this.project.clips = this.project.clips.filter((c) => !cloneIds.has(c.id));
 					return result;
@@ -535,6 +541,7 @@ export class TimelineEditorStore {
 	deleteSelected(): void {
 		const removable = this.selectedClips.filter((c) => !isClipLocked(this.project, c));
 		if (removable.length === 0) return;
+		// eslint-disable-next-line svelte/prefer-svelte-reactivity -- local lookup, not state
 		const ids = new Set(removable.map((c) => c.id));
 		this.#mutate(() => {
 			this.project.clips = this.project.clips.filter((c) => !ids.has(c.id));
@@ -955,6 +962,7 @@ export class TimelineEditorStore {
 	}
 
 	#pruneSelection(): void {
+		// eslint-disable-next-line svelte/prefer-svelte-reactivity -- local lookup, not state
 		const existing = new Set(this.project.clips.map((c) => c.id));
 		for (const id of [...this.selectedClipIds]) {
 			if (!existing.has(id)) this.selectedClipIds.delete(id);

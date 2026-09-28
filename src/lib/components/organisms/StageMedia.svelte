@@ -1,5 +1,6 @@
 <script lang="ts" module>
 	// Resolved-URL cache shared across all StageMedia instances for the session.
+	// eslint-disable-next-line svelte/prefer-svelte-reactivity -- plain URL cache, must not trigger renders
 	const resolvedUrls = new Map<string, string>();
 </script>
 

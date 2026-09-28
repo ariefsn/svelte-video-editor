@@ -5,6 +5,36 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0/).
 
+## [1.2.0] - 2026-09-28
+
+### Added
+
+- **`./pure` subpath export** — `@ariefsn/svelte-video-editor/pure` is the framework-free surface
+  of the library. It resolves through the plain `default` condition and never imports a
+  `.svelte` file, so any player or bundler (webpack, Remotion, canvas/WebGL, plain Node) can use
+  it. The main `.` entry is unchanged.
+- **Composition rules as pure helpers** (`core/render.ts`, exported from both `.` and `./pure`) —
+  the logic that decides what the preview shows and plays, previously inlined in the preview
+  components and `PlaybackEngine`, so other players reproduce the editor exactly:
+  - timing: `projectDurationF`, `isClipActive`, `clipSourceSec`
+  - layering: `layeredClips`, `visibleClipsAt` (z-order = track order, hidden tracks skipped)
+  - stage size: `aspectRatioValue`, `fitStage`, `compositionSize`
+  - audio: `trackAudible`, `clipAudible`, `clipGain` (volume × fade ramps)
+  - styles: `mediaClipCss`, `textClipCss`, `hexToRgba`, `toCssText`, `type CssProperties`
+- `./pure` also carries the existing framework-free helpers (`clipAnimStyle`, `ease`,
+  `backgroundCss`, `migrateProject`, `uid`, `frameToSec`, `secToFrame`, `clipEndF`,
+  `isMediaClip`, `isTextClip`, `clipHasAudio`, the `create*` / `default*` factories and the
+  preset constants) plus all domain types.
+- **`ClipBase` type** is now exported (from both `.` and `./pure`), so `MediaClip` / `TextClip`
+  no longer resolve to anonymous intersections for consumers.
+
+### Changed
+
+- `PreviewStage`, `StageMedia`, `TextOverlayView`, `PlaybackEngine` and the store's `durationF`
+  now use the shared `core/render.ts` helpers. No visual or behavioural change.
+
+[1.2.0]: https://github.com/ariefsn/svelte-video-editor/releases/tag/v1.2.0
+
 ## [1.1.0] - 2026-06-15
 
 ### Changed (breaking)

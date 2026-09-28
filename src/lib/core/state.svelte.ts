@@ -28,6 +28,7 @@ import {
 } from '../types/timeline.js';
 import { uid } from '../utils.js';
 import { PlaybackEngine } from './playback.js';
+import { projectDurationF } from './render.js';
 import {
 	cloneClipsPayload,
 	closeGap,
@@ -106,9 +107,7 @@ export class TimelineEditorStore {
 
 	readonly fps = $derived(this.project.fps);
 	readonly playheadF = $derived(Math.round(this.playhead * this.project.fps));
-	readonly durationF = $derived(
-		this.project.clips.reduce((max, clip) => Math.max(max, clipEndF(clip)), 0)
-	);
+	readonly durationF = $derived(projectDurationF(this.project));
 	readonly duration = $derived(frameToSec(this.durationF, this.project.fps));
 	readonly clipsByTrack = $derived.by(() => {
 		const map = new Map<string, TimelineClip[]>();

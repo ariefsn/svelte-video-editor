@@ -6,8 +6,9 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { cn } from '../../utils.js';
-	import { clipEndF, frameToSec, type MediaClip } from '../../types/timeline.js';
+	import type { MediaClip } from '../../types/timeline.js';
 	import { clipAnimStyle } from '../../core/animation.js';
+	import { isClipActive, mediaClipCss, toCssText } from '../../core/render.js';
 	import { useEditorHost } from '../../core/host.js';
 	import { useTimelineEditor } from '../../core/state.svelte.js';
 
@@ -25,11 +26,9 @@
 
 	const editor = useTimelineEditor();
 	const host = useEditorHost();
-	const visible = $derived(
-		editor.playhead >= frameToSec(clip.startF, editor.project.fps) &&
-			editor.playhead < frameToSec(clipEndF(clip), editor.project.fps)
-	);
+	const visible = $derived(isClipActive(clip, editor.playhead, editor.project.fps));
 	const anim = $derived(clipAnimStyle(clip, editor.playhead, editor.project.fps));
+	const css = $derived(`z-index: ${zIndex}; ${toCssText(mediaClipCss(anim))}`);
 
 	let src = $state(clip.assetId ? (resolvedUrls.get(clip.assetId) ?? clip.url) : clip.url);
 	let mediaEl = $state<HTMLVideoElement | HTMLAudioElement | null>(null);
@@ -56,8 +55,8 @@
 	<video
 		bind:this={mediaEl}
 		{src}
-		class={cn('absolute inset-0 h-full w-full object-cover', !visible && 'hidden')}
-		style="z-index: {zIndex}; opacity: {anim.opacity}; transform: {anim.transform}; filter: {anim.filter}; clip-path: {anim.clipPath};"
+		class={cn(!visible && 'hidden')}
+		style={css}
 		playsinline
 		preload="auto"
 		muted
@@ -65,11 +64,5 @@
 {:else if clip.kind === 'audio'}
 	<audio bind:this={mediaEl} {src} preload="auto" class="hidden"></audio>
 {:else}
-	<img
-		{src}
-		alt={clip.name}
-		class={cn('absolute inset-0 h-full w-full object-cover', !visible && 'hidden')}
-		style="z-index: {zIndex}; opacity: {anim.opacity}; transform: {anim.transform}; filter: {anim.filter}; clip-path: {anim.clipPath};"
-		draggable="false"
-	/>
+	<img {src} alt={clip.name} class={cn(!visible && 'hidden')} style={css} draggable="false" />
 {/if}

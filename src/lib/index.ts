@@ -50,6 +50,28 @@ export { clipAnimStyle, ease, type AnimStyle } from './core/animation.js';
 // background exactly. `null` → 'transparent'.
 export { backgroundCss } from './core/background.js';
 
+// ---- composition rules ----------------------------------------------------
+// Pure: what is visible/audible at time t and how it looks. Also available
+// framework-free from `@ariefsn/svelte-video-editor/pure`.
+export {
+	projectDurationF,
+	isClipActive,
+	clipSourceSec,
+	layeredClips,
+	visibleClipsAt,
+	aspectRatioValue,
+	fitStage,
+	compositionSize,
+	trackAudible,
+	clipAudible,
+	clipGain,
+	hexToRgba,
+	mediaClipCss,
+	textClipCss,
+	toCssText,
+	type CssProperties
+} from './core/render.js';
+
 // ---- i18n -----------------------------------------------------------------
 export {
 	defaultMessages,
@@ -90,6 +112,7 @@ export {
 	type TimelineProject,
 	type ProjectBackground,
 	type TimelineClip,
+	type ClipBase,
 	type MediaClip,
 	type MediaClipKind,
 	type TextClip,

@@ -2,6 +2,7 @@
 	import { cn } from '../../utils.js';
 	import type { TextClip } from '../../types/timeline.js';
 	import { clipAnimStyle } from '../../core/animation.js';
+	import { textClipCss, toCssText } from '../../core/render.js';
 	import { useTimelineEditor } from '../../core/state.svelte.js';
 
 	type Props = {
@@ -16,13 +17,7 @@
 	const selected = $derived(editor.selectedClipIds.has(clip.id));
 	const style = $derived(clip.style);
 	const anim = $derived(clipAnimStyle(clip, editor.playhead, editor.project.fps));
-
-	function hexToRgba(hex: string, opacity: number): string {
-		const r = parseInt(hex.slice(1, 3), 16);
-		const g = parseInt(hex.slice(3, 5), 16);
-		const b = parseInt(hex.slice(5, 7), 16);
-		return `rgba(${r}, ${g}, ${b}, ${opacity})`;
-	}
+	const css = $derived(toCssText(textClipCss(style, stageHeight, anim)));
 
 	let dragging = false;
 	let originX = 0;
@@ -69,34 +64,11 @@
 	tabindex="-1"
 	aria-label={clip.text}
 	class={cn(
-		'absolute max-w-full touch-none whitespace-pre-wrap select-none',
+		'touch-none select-none',
 		clip.locked ? 'cursor-not-allowed' : 'cursor-move',
 		selected && 'ring-1 ring-primary/80'
 	)}
-	style="
-		left: {style.xPct}%;
-		top: {style.yPct}%;
-		transform: translate(-50%, -50%){anim.transform === 'none' ? '' : ` ${anim.transform}`};
-		opacity: {anim.opacity};
-		filter: {anim.filter};
-		clip-path: {anim.clipPath};
-		font-family: {style.fontFamily};
-		font-size: {(stageHeight * style.fontSizePct) / 100}px;
-		font-weight: {style.fontWeight};
-		color: {style.color};
-		text-align: {style.align};
-		padding: {(stageHeight * style.paddingPct) / 100}px;
-		border-radius: {(stageHeight * style.borderRadiusPct) / 100}px;
-		background-color: {style.backgroundColor
-		? hexToRgba(style.backgroundColor, style.backgroundOpacity)
-		: 'transparent'};
-		border: {style.borderColor
-		? `${(stageHeight * (style.borderWidthPct ?? 0.3)) / 100}px solid ${style.borderColor}`
-		: 'none'};
-		{style.shadow
-		? `text-shadow: 0 ${(stageHeight * (style.shadowOffsetPct ?? 0.15)) / 100}px ${(stageHeight * (style.shadowBlurPct ?? 0.4)) / 100}px ${style.shadowColor ?? 'rgba(0,0,0,0.6)'};`
-		: ''}
-	"
+	style={css}
 	onpointerdown={onPointerDown}
 	onpointermove={onPointerMove}
 	onpointerup={onPointerUp}

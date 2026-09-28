@@ -10,6 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      # Required for npm provenance attestation (see --provenance below).
       id-token: write
     steps:
       - uses: actions/checkout@v4
@@ -19,9 +20,27 @@ jobs:
           node-version: 24
           registry-url: 'https://registry.npmjs.org'
           always-auth: true
+
       - run: bun install --frozen-lockfile
+
+      # Publishing is irreversible for a given version number, so fail here
+      # rather than shipping a broken build.
+      - name: Verify package.json version matches the release tag
+        if: github.event_name == 'release'
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          PKG=$(node -p "require('./package.json').version")
+          if [ "$TAG" != "$PKG" ]; then
+            echo "Release tag ($TAG) does not match package.json version ($PKG)."
+            exit 1
+          fi
+
+      - run: bun run check
+      # Only the node (`server`) project: there are no browser (.svelte.test.ts)
+      # suites yet, so Chromium isn't needed.
+      - run: bun run test:unit --run --project server
+
       - run: bun run prepack
-      - run: npm publish --access public
+      - run: npm publish --access public --provenance
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NPM_USERNAME: ${{ secrets.NPM_USERNAME }}

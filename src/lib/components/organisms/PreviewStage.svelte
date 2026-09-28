@@ -11,6 +11,7 @@
 	} from '../../types/timeline.js';
 	import { PRELOAD_LOOKAHEAD } from '../../core/playback.js';
 	import { backgroundCss } from '../../core/background.js';
+	import { fitStage, isClipActive, layeredClips } from '../../core/render.js';
 	import { useTimelineEditor } from '../../core/state.svelte.js';
 	import StageMedia from './StageMedia.svelte';
 	import TextOverlayView from './TextOverlayView.svelte';
@@ -22,13 +23,10 @@
 	let containerWidth = $state(0);
 	let containerHeight = $state(0);
 
-	const aspect = $derived.by(() => {
-		const [w, h] = editor.project.aspectRatio.split(':').map(Number);
-		return w / h;
-	});
 	// Largest stage that fits the container while keeping the aspect ratio.
-	const stageWidth = $derived(Math.max(0, Math.min(containerWidth, containerHeight * aspect)));
-	const stageHeight = $derived(aspect > 0 ? stageWidth / aspect : 0);
+	const stage = $derived(fitStage(editor.project.aspectRatio, containerWidth, containerHeight));
+	const stageWidth = $derived(stage.width);
+	const stageHeight = $derived(stage.height);
 
 	// Staged = mounted in the DOM. Includes clips within the lookahead window
 	// so their media is fetched/decoded before they become visible — avoids a
@@ -38,28 +36,16 @@
 	// touched by the playhead. Visibility is derived inside StageMedia.
 	const stagedClips = $derived.by(() => {
 		const fps = editor.project.fps;
-		const result: { clip: MediaClip | TextClip; zIndex: number }[] = [];
-		editor.project.tracks.forEach((track, index) => {
-			if (track.hidden) return;
-			for (const clip of editor.project.clips) {
-				if (clip.trackId !== track.id) continue;
-				if (
-					editor.playhead < frameToSec(clip.startF, fps) - PRELOAD_LOOKAHEAD ||
-					editor.playhead >= frameToSec(clipEndF(clip), fps)
-				)
-					continue;
-				result.push({ clip, zIndex: index });
-			}
-		});
-		return result;
+		return layeredClips(editor.project).filter(
+			({ clip }) =>
+				editor.playhead >= frameToSec(clip.startF, fps) - PRELOAD_LOOKAHEAD &&
+				editor.playhead < frameToSec(clipEndF(clip), fps)
+		);
 	});
 	const mediaClips = $derived(stagedClips.filter((e) => isMediaClip(e.clip)));
 	const textClips = $derived(
 		stagedClips.filter(
-			(e) =>
-				isTextClip(e.clip) &&
-				editor.playhead >= frameToSec(e.clip.startF, editor.project.fps) &&
-				editor.playhead < frameToSec(clipEndF(e.clip), editor.project.fps)
+			(e) => isTextClip(e.clip) && isClipActive(e.clip, editor.playhead, editor.project.fps)
 		)
 	);
 	const hasContent = $derived(editor.project.clips.length > 0);

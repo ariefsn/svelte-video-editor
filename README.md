@@ -494,6 +494,58 @@ All the data types your renderer needs (`TimelineProject`, `MediaClip`, `TextCli
 `TimelineTrack`, `frameToSec`, `secToFrame`, `isMediaClip`, `isTextClip`, …) are exported from
 the package.
 
+**Non-Svelte renderers** (a Remotion/React composition, a canvas/WebGL player, a server-side
+renderer, plain Node) must import from the **`/pure`** subpath instead. The main entry only
+resolves under the `svelte` condition and pulls in `.svelte` components; `/pure` is
+framework-free and resolves in any bundler.
+
+`/pure` exposes the **same composition rules the built-in preview uses**, so any player can
+reproduce it exactly instead of re-implementing them. Times are float seconds on the project
+timeline (`t = frame / fps`):
+
+| Question                       | Helper                                                                    |
+| ------------------------------ | ------------------------------------------------------------------------- |
+| How long is the project?       | `projectDurationF(project)`                                               |
+| What is on screen at `t`?      | `visibleClipsAt(project, t)` → `{ clip, zIndex }[]`, bottom → top         |
+| All layers (for `<Sequence>`s) | `layeredClips(project)` — z-ordered, hidden tracks skipped                |
+| Is this clip active at `t`?    | `isClipActive(clip, t, fps)` — `[start, end)`                             |
+| Where in the source media?     | `clipSourceSec(clip, t, fps)` — honours `trimInF`                         |
+| Output / stage pixel size      | `compositionSize(aspectRatio, shortSide?)`, `fitStage(aspectRatio, w, h)` |
+| Background                     | `backgroundCss(project.background)`                                       |
+| Enter/exit animation           | `clipAnimStyle(clip, t, fps)`                                             |
+| Media layer style              | `mediaClipCss(anim)` — full-bleed `object-fit: cover` + animation         |
+| Text layer style               | `textClipCss(clip.style, stageHeight, anim)` — % sizes → px               |
+| Heard at all? (mute/solo/…)    | `clipAudible(project, clip)`, `trackAudible(project, track)`              |
+| Volume at `t` (with fades)     | `clipGain(clip, t, fps)`                                                  |
+| Stored/older project           | `migrateProject(input)`                                                   |
+
+The style helpers return camelCase CSS objects — pass them straight to a React `style` prop,
+`Object.assign(el.style, css)`, or serialize with `toCssText(css)`. A minimal DOM player:
+
+```ts
+import {
+	backgroundCss,
+	clipAnimStyle,
+	isMediaClip,
+	mediaClipCss,
+	textClipCss,
+	toCssText,
+	visibleClipsAt,
+	type TimelineProject
+} from '@ariefsn/svelte-video-editor/pure';
+
+function renderFrame(stage: HTMLElement, project: TimelineProject, t: number) {
+	stage.style.background = backgroundCss(project.background);
+	const html = visibleClipsAt(project, t).map(({ clip, zIndex }) => {
+		const anim = clipAnimStyle(clip, t, project.fps);
+		return isMediaClip(clip)
+			? `<img src="${clip.url}" style="z-index:${zIndex}; ${toCssText(mediaClipCss(anim))}">`
+			: `<div style="z-index:${zIndex}; ${toCssText(textClipCss(clip.style, stage.clientHeight, anim))}">${clip.text}</div>`;
+	});
+	stage.innerHTML = html.join('');
+}
+```
+
 ### Using Remotion specifically
 
 Remotion works, but it's **host-owned glue** — the library gives you the seam and the data, not
@@ -522,7 +574,7 @@ The store API you wire against (all reactive, exported types):
 	import { createRoot, type Root } from 'react-dom/client';
 	import { createElement } from 'react';
 	import { Player, type PlayerRef } from '@remotion/player';
-	import { secToFrame, type SectionCtx } from '@ariefsn/svelte-video-editor';
+	import { compositionSize, secToFrame, type SectionCtx } from '@ariefsn/svelte-video-editor';
 	import { MyComposition } from './MyComposition'; // your Remotion composition (React)
 
 	// Passed straight from the preview snippet: <RemotionPreview {ctx} />
@@ -535,10 +587,8 @@ The store API you wire against (all reactive, exported types):
 	// Suppress the echo when an editor→player seek triggers the player's own event.
 	let applying = false;
 
-	// 16:9 / 9:16 / 1:1 → pixel dims (host's choice). aspectRatio has no width/height.
-	const dims = $derived(
-		{ '16:9': [1920, 1080], '9:16': [1080, 1920], '1:1': [1080, 1080] }[editor.project.aspectRatio]
-	);
+	// aspectRatio has no width/height — derive output pixels (16:9 → 1920×1080).
+	const dims = $derived(compositionSize(editor.project.aspectRatio));
 
 	onMount(() => {
 		root = createRoot(mountEl);
@@ -554,8 +604,8 @@ The store API you wire against (all reactive, exported types):
 				// Map clips/tracks + resolveAsset into your composition's props:
 				inputProps: { project: editor.project, resolveAsset: ctx.host.resolveAsset },
 				durationInFrames: Math.max(1, secToFrame(editor.duration, editor.fps)),
-				compositionWidth: dims[0],
-				compositionHeight: dims[1],
+				compositionWidth: dims.width,
+				compositionHeight: dims.height,
 				fps: editor.fps,
 				controls: false, // the editor's TransportBar already drives playback
 				style: { width: '100%', height: '100%' }
@@ -622,16 +672,71 @@ Then drop it into the `preview` snippet:
 
 #### Mapping the timeline into a composition
 
-Inside `MyComposition` (your React code), turn the project data into Remotion `<Sequence>`s:
+Inside `MyComposition` (your React code), import from `@ariefsn/svelte-video-editor/pure` and let
+the helpers decide layering, timing, styles and audio — the result matches the editor preview:
 
-- `project.tracks` — **array order is z-order** (index 0 is the bottom layer).
-- `project.clips` — each has `startF` (start frame), `durationF`, `trimInF` (source-in frame).
-  Wrap each in `<Sequence from={startF} durationInFrames={durationF}>`.
-- Media URLs — call `resolveAsset(clip.assetId)` (passed via `inputProps`) and feed the result
-  to `<OffthreadVideo>` / `<Img>` / `<Audio>`. Use `isMediaClip` / `isTextClip` to branch;
-  `TextClip.style` carries position/font as percentages of the stage.
-- `project.aspectRatio` is `'16:9' | '9:16' | '1:1'` — there are **no** width/height fields, so
-  pick pixel dims yourself (as `dims` above).
+```tsx
+import { AbsoluteFill, Audio, Img, OffthreadVideo, Sequence, useCurrentFrame } from 'remotion';
+import {
+	backgroundCss,
+	clipAnimStyle,
+	clipAudible,
+	clipGain,
+	compositionSize,
+	isMediaClip,
+	layeredClips,
+	mediaClipCss,
+	textClipCss,
+	type TimelineProject
+} from '@ariefsn/svelte-video-editor/pure';
+
+export function MyComposition({
+	project,
+	urls
+}: {
+	project: TimelineProject;
+	urls: Record<string, string>;
+}) {
+	const frame = useCurrentFrame();
+	const { fps } = project;
+	const t = frame / fps;
+	const { height } = compositionSize(project.aspectRatio);
+
+	return (
+		<AbsoluteFill style={{ background: backgroundCss(project.background) }}>
+			{layeredClips(project).map(({ clip, zIndex }) => {
+				const anim = clipAnimStyle(clip, t, fps);
+				return (
+					<Sequence key={clip.id} from={clip.startF} durationInFrames={clip.durationF}>
+						{!isMediaClip(clip) ? (
+							<div style={{ zIndex, ...textClipCss(clip.style, height, anim) }}>{clip.text}</div>
+						) : clip.kind === 'image' ? (
+							<Img src={urls[clip.id]} style={{ zIndex, ...mediaClipCss(anim) }} />
+						) : (
+							(() => {
+								const Media = clip.kind === 'video' ? OffthreadVideo : Audio;
+								const audible = clipAudible(project, clip);
+								return (
+									<Media
+										src={urls[clip.id]}
+										startFrom={clip.trimInF} // `trimBefore` on newer Remotion
+										// f is relative to the Sequence start
+										volume={(f) => (audible ? clipGain(clip, (clip.startF + f) / fps, fps) : 0)}
+										style={{ zIndex, ...mediaClipCss(anim) }}
+									/>
+								);
+							})()
+						)}
+					</Sequence>
+				);
+			})}
+		</AbsoluteFill>
+	);
+}
+```
+
+Resolve media URLs (`resolveAsset(clip.assetId)`, falling back to `clip.url`) before rendering
+and pass them in via `inputProps`.
 
 > **Simpler path:** if you only want Remotion for high-fidelity _output_ (not live scrubbing),
 > skip the `preview` snippet entirely and keep the built-in `PreviewStage`. Just feed `project`

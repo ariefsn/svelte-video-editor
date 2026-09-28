@@ -34,6 +34,7 @@
 	let wasPlaying = false;
 
 	// ---- hover scrub thumbnail -------------------------------------------------
+	// eslint-disable-next-line svelte/prefer-svelte-reactivity -- plain thumbnail cache, must not trigger renders
 	const thumbCache = new Map<string, string>();
 	let hoverX = $state<number | null>(null);
 	let hoverThumb = $state<string | null>(null);

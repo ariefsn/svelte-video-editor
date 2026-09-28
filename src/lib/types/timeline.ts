@@ -109,7 +109,7 @@ export function defaultTransition(): ClipTransition {
 	return { preset: 'fade', durationF: 15, easing: 'ease-out' };
 }
 
-type ClipBase = {
+export type ClipBase = {
 	id: string;
 	trackId: string;
 	startF: number;

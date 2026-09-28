@@ -3,9 +3,9 @@ import {
 	frameToSec,
 	isMediaClip,
 	type MediaClip,
-	type TimelineProject,
-	type TimelineTrack
+	type TimelineProject
 } from '../types/timeline.js';
+import { clipAudible, clipGain, clipSourceSec, isClipActive } from './render.js';
 
 type PlaybackEngineOpts = {
 	getProject: () => TimelineProject;
@@ -26,15 +26,6 @@ const CORRECTION_COOLDOWN_MS = 500;
 // Clips within this many seconds of becoming active get their element mounted
 // and pre-seeked so the boundary handoff doesn't hiccup on decode/network.
 export const PRELOAD_LOOKAHEAD = 5;
-
-/** Track audibility: any solo → only soloed tracks play; mute always silences
- * its own track, even when soloed. */
-export function trackAudible(project: TimelineProject, track: TimelineTrack | undefined): boolean {
-	if (!track) return false;
-	if (track.muted) return false;
-	const anySolo = project.tracks.some((t) => t.solo);
-	return anySolo ? track.solo : true;
-}
 
 /**
  * Clock for the DOM-layered preview. While a video clip is active its element
@@ -201,31 +192,17 @@ export class PlaybackEngine {
 
 		const fps = project.fps;
 		const startSec = frameToSec(clip.startF, fps);
-		const endSec = frameToSec(clipEndF(clip), fps);
 		const trimSec = frameToSec(clip.trimInF, fps);
 
-		const track = project.tracks.find((tr) => tr.id === clip.trackId);
 		// Only touch media-element properties when they actually change — this
 		// runs every rAF tick for every staged element.
-		const audible = trackAudible(project, track) && !clip.audioDetached && clip.volume > 0;
-		const muted = !audible;
+		const muted = !clipAudible(project, clip);
 		if (el.muted !== muted) el.muted = muted;
 
-		// Linear fade ramps relative to the clip edges.
-		let gain = clip.volume;
-		if (clip.fadeInF > 0) {
-			const fadeInSec = frameToSec(clip.fadeInF, fps);
-			gain *= Math.min(1, Math.max(0, (t - startSec) / fadeInSec));
-		}
-		if (clip.fadeOutF > 0) {
-			const fadeOutSec = frameToSec(clip.fadeOutF, fps);
-			gain *= Math.min(1, Math.max(0, (endSec - t) / fadeOutSec));
-		}
-		const volume = Math.min(1, Math.max(0, gain));
+		const volume = clipGain(clip, t, fps);
 		if (Math.abs(el.volume - volume) > 0.005) el.volume = volume;
 
-		const active = t >= startSec && t < endSec;
-		if (!active) {
+		if (!isClipActive(clip, t, fps)) {
 			if (!el.paused) el.pause();
 			// Lookahead: prime the decoder at the clip's in-point so the
 			// upcoming boundary handoff starts on an already-decoded frame.
@@ -236,7 +213,7 @@ export class PlaybackEngine {
 			return;
 		}
 
-		const desired = t - startSec + trimSec;
+		const desired = clipSourceSec(clip, t, fps);
 		if (forceSeek) {
 			el.currentTime = desired;
 			this.#lastCorrection.set(clipId, performance.now());
